@@ -1,0 +1,18 @@
+.app-header {
+  font-family: source sans pro, sans-serif;
+}
+
+.app-header .navbar-brand {
+  color: #5cb85c;
+  font-weight: bold;
+}
+
+.app-header .navbar-brand:hover {
+  color: #5cb85c;
+  font-weight: bold;
+}
+
+.app-header .navbar-brand:focus {
+  color: #5cb85c;
+  font-weight: bold;
+}
