@@ -14,32 +14,21 @@ export default class Pagination extends Component {
       indexPagination
     } = this.props;
 
-    const paginationCount = articlesCount / limit;
-    const paginationArray = [];
-    for (let i = 1; i < paginationCount + 1; i++) {
-      paginationArray.push(i);
-    }
+    const paginationCount = Math.ceil(articlesCount / limit);
+    const paginationArray = new Array(paginationCount).fill("");
 
-    const elements = paginationArray.map(item => {
-      if (item === indexPagination) {
-        return (
-          <li className="page-item active">
-            <input
-              type="button"
-              className="page-link"
-              onClick={() => onPaginationClick(item)}
-              value={item}
-            />
-          </li>
-        );
+    const elements = paginationArray.map((item, index) => {
+      let className = "page-item";
+      if (index + 1 === indexPagination) {
+        className += " active";
       }
       return (
-        <li className="page-item">
+        <li className={className}>
           <input
             type="button"
             className="page-link"
-            onClick={() => onPaginationClick(item)}
-            value={item}
+            onClick={() => onPaginationClick(index)}
+            value={index + 1}
           />
         </li>
       );

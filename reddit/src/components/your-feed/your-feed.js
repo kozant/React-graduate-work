@@ -1,11 +1,11 @@
 import React from "react";
 
-const ErrorComponent = () => {
+const YourFeed = () => {
   return (
     <React.Fragment>
-      <div>ERROR</div>
+      <div>Your Feed</div>
     </React.Fragment>
   );
 };
 
-export default ErrorComponent;
+export default YourFeed;

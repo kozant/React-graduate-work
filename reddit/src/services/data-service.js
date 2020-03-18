@@ -12,18 +12,37 @@ export default class DataService {
 
   getAllArticles = async (limit, offset) => {
     const res = await this.getResource(
-      `/articles?limit=${limit}&offset=${offset}`
+      `/articles?&limit=${limit}&offset=${offset}`
     );
-    return res.articles.map(this._transformArticle);
+    return {
+      articles: res.articles.map(this._transformArticle),
+      articlesCount: res.articlesCount
+    };
   };
 
-  getArticlesCount = async () => {
-    const res = await this.getResource(`/articles`);
-    return res.articlesCount;
+  getArticlesWithTag = async (limit, offset, tag) => {
+    const res = await this.getResource(
+      `/articles?tag=${tag}&limit=${limit}&offset=${offset}`
+    );
+    return {
+      articles: res.articles.map(this._transformArticle),
+      articlesCount: res.articlesCount
+    };
   };
+
+  getAllPopularTags = async () => {
+    const res = await this.getResource(`/tags`);
+    return res.tags;
+  };
+
+  // getArticlesCount = async () => {
+  //   const res = await this.getResource(`/articles`);
+  //   return res.articlesCount;
+  // };
 
   _transformArticle = article => {
     return {
+      slug: article.slug,
       title: article.title,
       body: article.body,
       author: article.author.username,
