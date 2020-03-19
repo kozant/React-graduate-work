@@ -1,42 +1,26 @@
 import React, { Component } from "react";
 import "./feed-header.css";
 
-import ArticleList from "../article-list";
-
 export default class FeedHeader extends Component {
   render() {
-    const {
-      tag,
-      articles,
-      yourFeed,
-      globalFeed,
-      tagFeed,
-      onYourFeedClick,
-      onGlobalFeedClick
-    } = this.props;
+    const { tag, typeFeed, onYourFeedClick, onGlobalFeedClick } = this.props;
 
     let classNameTag = "nav-link",
       classNameGlobalFeed = "nav-link",
       classNameYourFeed = "nav-link",
-      classNameHidden = "nav-item hidden";
+      classNameHidden = "nav-item";
 
-    if (yourFeed) {
+    if (typeFeed === "yourFeed") {
       classNameYourFeed = "nav-link active";
-      classNameGlobalFeed = "nav-link";
-      classNameTag = "nav-link";
       classNameHidden = "nav-item hidden";
     }
 
-    if (globalFeed) {
-      classNameYourFeed = "nav-link";
+    if (typeFeed === "globalFeed") {
       classNameGlobalFeed = "nav-link active";
-      classNameTag = "nav-link";
       classNameHidden = "nav-item hidden";
     }
 
-    if (tagFeed) {
-      classNameYourFeed = "nav-link";
-      classNameGlobalFeed = "nav-link";
+    if (typeFeed === "tagFeed") {
       classNameTag = "nav-link active";
       classNameHidden = "nav-item";
     }

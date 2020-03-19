@@ -10,10 +10,10 @@ export default class ContainerPage extends Component {
   DataService = new DataService();
 
   state = {
-    popularTags: [],
     articles: [],
-    articlesCount: null,
+    articlesCount: 500,
     indexPagination: 1,
+    token: null,
 
     limit: 10,
     offset: 0,
@@ -22,19 +22,27 @@ export default class ContainerPage extends Component {
     loading: true,
     error: false,
 
-    yourFeed: false,
-    globalFeed: true,
-    tagFeed: false
+    typeFeed: "globalFeed"
   };
 
-  constructor() {
-    super();
-    this.loadTags();
-    this.loadArticles(this.state.limit, this.state.offset);
+  componentDidMount() {
+    this.loadAllArticles(this.state.limit, this.state.offset);
   }
 
-  loadArticles = (limit, offset) => {
+  loadAllArticles = (limit, offset) => {
     this.DataService.getAllArticles(limit, offset)
+      .then(data => {
+        this.setState({
+          articles: data.articles,
+          articlesCount: data.articlesCount,
+          loading: false
+        });
+      })
+      .catch(e => this.setState({ error: true }));
+  };
+
+  loadYourArticles = (limit, offset) => {
+    this.DataService.getYourArticles(limit, offset)
       .then(data => {
         this.setState({
           articles: data.articles,
@@ -57,81 +65,70 @@ export default class ContainerPage extends Component {
       .catch(e => this.setState({ error: true }));
   };
 
-  loadTags = () => {
-    this.DataService.getAllPopularTags().then(data => {
-      this.setState({
-        popularTags: data
-      });
-    });
-  };
-
   tagClick = item => {
     this.setState({
       tag: item,
-      yourFeed: false,
-      globalFeed: false,
-      tagFeed: true,
-      loading: true
+      typeFeed: "tagFeed",
+      loading: true,
+      error: false,
+      indexPagination: 1
     });
+    this.loadArticlesWithTag(this.state.limit, this.state.offset, item);
   };
 
   yourFeedClick = () => {
     this.setState({
-      yourFeed: true,
-      globalFeed: false,
-      tagFeed: false,
-      loading: true
+      typeFeed: "yourFeed",
+      loading: true,
+      error: false,
+      indexPagination: 1
     });
+    this.loadYourArticles(this.state.limit, this.state.offset);
   };
 
   globalFeedClick = () => {
     this.setState({
-      yourFeed: false,
-      globalFeed: true,
-      tagFeed: false,
-      loading: true
+      typeFeed: "globalFeed",
+      loading: true,
+      error: false,
+      indexPagination: 1
     });
+    this.loadAllArticles(this.state.limit, this.state.offset);
   };
 
   PaginationClick = page => {
     page = page + 1;
+
     this.setState({
       indexPagination: page,
       offset: page * 10 - 10,
       loading: true
     });
-  };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      this.state.articles !== prevState.articles //&&
-      //this.state.loading !== prevState.loading
-    ) {
-      if (this.state.globalFeed) {
-        this.loadArticles(this.state.limit, this.state.offset);
-      }
-      if (this.state.tagFeed) {
-        this.loadArticlesWithTag(
-          this.state.limit,
-          this.state.offset,
-          this.state.tag
-        );
-      }
+    if (this.state.typeFeed === "globalFeed") {
+      this.loadAllArticles(this.state.limit, this.state.offset);
     }
-  }
+    if (this.state.typeFeed === "yourFeed") {
+      this.loadYourArticles(this.state.limit, this.state.offset);
+    }
+    if (this.state.typeFeed === "tagFeed") {
+      this.loadArticlesWithTag(
+        this.state.limit,
+        this.state.offset,
+        this.state.tag
+      );
+    }
+  };
 
   render() {
     const {
-      popularTags,
       articles,
       articlesCount,
       limit,
       tag,
       indexPagination,
 
-      yourFeed,
-      globalFeed,
-      tagFeed,
+      typeFeed,
 
       loading,
       error
@@ -141,9 +138,7 @@ export default class ContainerPage extends Component {
       <div>
         <FeedHeader
           tag={tag}
-          yourFeed={yourFeed}
-          globalFeed={globalFeed}
-          tagFeed={tagFeed}
+          typeFeed={typeFeed}
           onYourFeedClick={this.yourFeedClick}
           onGlobalFeedClick={this.globalFeedClick}
         />
@@ -161,10 +156,7 @@ export default class ContainerPage extends Component {
 
     return (
       <React.Fragment>
-        <Row
-          left={main}
-          right={<TagList onTagClick={this.tagClick} tagList={popularTags} />}
-        />
+        <Row left={main} right={<TagList onTagClick={this.tagClick} />} />
       </React.Fragment>
     );
   }

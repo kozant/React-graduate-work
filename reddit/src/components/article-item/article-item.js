@@ -8,6 +8,14 @@ import "./article-item.css";
 export default class ArticleItem extends Component {
   render() {
     const { data } = this.props;
+    const elements = data.tagList.map((item, index) => {
+      return (
+        <li key={index} className="tag-default tag-pill tag-outline">
+          {" "}
+          {item}{" "}
+        </li>
+      );
+    });
     return (
       <div className="article-preview">
         <div>
@@ -23,7 +31,7 @@ export default class ArticleItem extends Component {
             </div>
             <div className="pull-xs-right">
               <button className="btn btn-sm btn-outline-primary">
-                <FontAwesomeIcon icon={faHeart} /> 0
+                <FontAwesomeIcon icon={faHeart} /> {data.favoritesCount}
               </button>
             </div>
           </div>
@@ -32,7 +40,7 @@ export default class ArticleItem extends Component {
           <h1>{data.title}</h1>
           <p>{data.body}</p>
           <span>Read more...</span>
-          <ul className="tag-list"></ul>
+          <ul className="tag-list">{elements}</ul>
         </a>
       </div>
     );

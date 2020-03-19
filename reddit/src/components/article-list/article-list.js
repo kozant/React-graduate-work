@@ -22,7 +22,7 @@ export default class ArticleList extends Component {
     const elements =
       !loading && !error
         ? data.map(item => {
-            return <ArticleItem key={data.slug} data={item} />;
+            return <ArticleItem key={item.slug} data={item} />;
           })
         : null;
     const pagination =

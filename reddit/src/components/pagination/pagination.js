@@ -23,7 +23,7 @@ export default class Pagination extends Component {
         className += " active";
       }
       return (
-        <li className={className}>
+        <li key={index + 1} className={className}>
           <input
             type="button"
             className="page-link"

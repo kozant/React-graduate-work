@@ -20,6 +20,16 @@ export default class DataService {
     };
   };
 
+  getYourArticles = async (limit, offset) => {
+    const res = await this.getResource(
+      `/articles/feed?limit=${limit}&offset=${offset}`
+    );
+    return {
+      articles: res.articles.map(this._transformArticle),
+      articlesCount: res.articlesCount
+    };
+  };
+
   getArticlesWithTag = async (limit, offset, tag) => {
     const res = await this.getResource(
       `/articles?tag=${tag}&limit=${limit}&offset=${offset}`
@@ -35,11 +45,6 @@ export default class DataService {
     return res.tags;
   };
 
-  // getArticlesCount = async () => {
-  //   const res = await this.getResource(`/articles`);
-  //   return res.articlesCount;
-  // };
-
   _transformArticle = article => {
     return {
       slug: article.slug,
@@ -47,7 +52,9 @@ export default class DataService {
       body: article.body,
       author: article.author.username,
       image: article.author.image,
-      updatedAt: article.updatedAt
+      updatedAt: article.updatedAt,
+      favoritesCount: article.favoritesCount,
+      tagList: article.tagList
     };
   };
 }

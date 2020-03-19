@@ -33,6 +33,13 @@ img {
   border: 0;
 }
 
+.article-meta .info {
+  margin: 0 1.5rem 0 0.3rem;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1rem;
+}
+
 .article-meta .info .author {
   display: block;
   font-weight: 500 !important;
@@ -106,9 +113,48 @@ dl {
   margin-bottom: 1rem;
 }
 
+.article-preview .preview-link ul li {
+  font-weight: 300;
+  font-size: 0.8rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.tag-default.tag-outline {
+  border: 1px solid #ddd;
+  color: #aaa !important;
+  background: 0 0 !important;
+}
+ul.tag-list li {
+  display: inline-block !important;
+}
+.tag-default {
+  color: #fff !important;
+  font-size: 0.8rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  white-space: nowrap;
+  margin-right: 3px;
+  margin-bottom: 0.2rem;
+  display: inline-block;
+}
+.tag-default {
+  background-color: #818a91;
+}
+.tag-pill {
+  padding-right: 0.6em;
+  padding-left: 0.6em;
+  border-radius: 10rem;
+}
+
 .btn-outline-primary {
   color: #5cb85c;
   background-image: none;
   background-color: transparent;
+  border-color: #5cb85c;
+}
+
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #5cb85c;
   border-color: #5cb85c;
 }
