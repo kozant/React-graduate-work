@@ -133,6 +133,7 @@ export default class ContainerPage extends Component {
       loading,
       error
     } = this.state;
+    console.log(error);
 
     const main = (
       <div>

@@ -28,7 +28,7 @@ const AppHeader = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="#">
+              <a className="nav-link" href="#">
                 Sign in
               </a>
             </li>

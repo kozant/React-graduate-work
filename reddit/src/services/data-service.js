@@ -2,7 +2,13 @@ export default class DataService {
   _apiBase = "https://conduit.productionready.io/api";
 
   getResource = async url => {
-    const res = await fetch(`${this._apiBase}${url}`);
+    const res = await fetch(`${this._apiBase}${url}`, {
+      method: "GET",
+      headers: {
+        authorization:
+          "Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ODc1ODIsInVzZXJuYW1lIjoia296YW50IiwiZXhwIjoxNTg5ODkxMjYxfQ.7BSQYjw-_mhHFTU9XWkbUYAG5oi-_dIHBhKmc0QQU4Y"
+      }
+    });
 
     if (!res.ok) {
       throw new Error(`Could not fetch ${url}, received ${res.status}`);
