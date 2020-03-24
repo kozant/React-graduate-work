@@ -26,6 +26,11 @@ export default class DataService {
     };
   };
 
+  getArticle = async slug => {
+    const { article } = await this.getResource(`/articles/${slug}`);
+    return this._transformArticle(article);
+  };
+
   getYourArticles = async (limit, offset) => {
     const res = await this.getResource(
       `/articles/feed?limit=${limit}&offset=${offset}`

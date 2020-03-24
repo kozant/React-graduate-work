@@ -1,13 +1,15 @@
 import React from "react";
 import "./app-header.css";
 
+import { Link } from "react-router-dom";
+
 const AppHeader = () => {
   return (
     <div className="container app-header">
       <nav className="navbar navbar-expand-lg navbar-light">
-        <a className="navbar-brand" href="#">
+        <Link to="/" className="navbar-brand">
           reddit
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -23,9 +25,9 @@ const AppHeader = () => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav ml-auto">
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link to="/" className="nav-link">
                 Home
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">

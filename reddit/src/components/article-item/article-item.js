@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import { Link } from "react-router-dom";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
@@ -11,8 +13,7 @@ export default class ArticleItem extends Component {
     const elements = data.tagList.map((item, index) => {
       return (
         <li key={index} className="tag-default tag-pill tag-outline">
-          {" "}
-          {item}{" "}
+          {item}
         </li>
       );
     });
@@ -20,13 +21,13 @@ export default class ArticleItem extends Component {
       <div className="article-preview">
         <div>
           <div className="article-meta">
-            <a href="#">
+            <Link to={`/profile/${data.slug}`}>
               <img src={data.image} />
-            </a>
+            </Link>
             <div className="info">
-              <a className="author" href="#">
+              <Link to={`/profile/${data.slug}`} className="author">
                 {data.author}
-              </a>
+              </Link>
               <span className="date">{data.updatedAt}</span>
             </div>
             <div className="pull-xs-right">
@@ -36,12 +37,12 @@ export default class ArticleItem extends Component {
             </div>
           </div>
         </div>
-        <a className="preview-link" href="#">
+        <Link to={`/article/${data.slug}`} className="preview-link">
           <h1>{data.title}</h1>
           <p>{data.body}</p>
           <span>Read more...</span>
           <ul className="tag-list">{elements}</ul>
-        </a>
+        </Link>
       </div>
     );
   }

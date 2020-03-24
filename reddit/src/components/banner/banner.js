@@ -3,7 +3,7 @@ import "./banner.css";
 
 const Banner = () => {
   return (
-    <div className="banner">
+    <div className="baner">
       <div className="container">
         <h1 className="logo-font">reddit</h1>
         <p>
