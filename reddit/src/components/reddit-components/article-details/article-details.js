@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { withService } from "../../hocs/withService";
+import { withService } from "../../../hocs/withService";
 import { Link } from "react-router-dom";
 
 import "./article-details.css";
@@ -36,7 +36,6 @@ class ItemDetails extends Component {
 
   render() {
     const { data } = this.state;
-    console.log(data);
 
     // const elements = data.tagList.map((item, index) => {
     //   return (
