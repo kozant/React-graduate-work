@@ -1,8 +1,8 @@
-.feed-toggle {
+.profile-feed {
   margin-bottom: -1px;
 }
 
-.nav-pills.outline-active .nav-link {
+.profile-feed .nav-pills.outline-active .nav-link {
   border-radius: 0;
   border: none;
   border-bottom-color: currentcolor;
@@ -13,38 +13,37 @@
   color: #aaa;
 }
 
-.nav-pills.outline-active .nav-link.active {
+.profile-feed .nav-pills.outline-active .nav-link.active {
   background: #fff !important;
   border-bottom: 2px solid #5cb85c !important;
   color: #5cb85c !important;
 }
 
-.nav-link {
+.profile-feed .nav-link {
   cursor: pointer;
-  
-  }
-
-.nav-link.active {
-  color: #fff;
-  cursor: default;
-  /* background-color: #5cb85c; */
 }
 
-.nav-pills .nav-link {
+.profile-feed .nav-link.active {
+  color: #fff;
+  cursor: default;
+  background-color: #5cb85c;
+}
+
+.profile-feed .nav-pills .nav-link {
   display: block;
   padding: 0.5em 1em;
   border-radius: 0.25rem;
 }
 
-a:not([href]) {
+.profile-feed a:not([href]) {
   color: inherit;
   text-decoration: none;
 }
 
-a {
+.profile-feed a {
   touch-action: manipulation;
 }
 
-.hidden {
+.profile-feed .hidden {
   display: none;
 }

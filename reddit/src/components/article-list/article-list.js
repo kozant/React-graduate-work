@@ -2,9 +2,24 @@ import React, { Component } from "react";
 import "./article-list.css";
 
 import ArticleItem from "../article-item";
-import ErrorComponent from "../error-component";
 import Spinner from "../spinner";
 import Pagination from "../pagination";
+
+const NoData = () => {
+  return (
+    <React.Fragment>
+      <div>Empty...</div>
+    </React.Fragment>
+  );
+};
+
+const Error = () => {
+  return (
+    <React.Fragment>
+      <div>Error</div>
+    </React.Fragment>
+  );
+};
 
 export default class ArticleList extends Component {
   render() {
@@ -20,11 +35,12 @@ export default class ArticleList extends Component {
 
     const spinner = loading && !error ? <Spinner /> : null;
     const elements =
-      !loading && !error
+      !loading && !error && data.length !== 0
         ? data.map(item => {
             return <ArticleItem key={item.slug} data={item} />;
           })
         : null;
+    const nodata = !loading && !error && data.length == 0 ? <NoData /> : null;
     const pagination =
       !loading && !error ? (
         <Pagination
@@ -34,12 +50,13 @@ export default class ArticleList extends Component {
           onPaginationClick={onPaginationClick}
         />
       ) : null;
-    const err = error ? <ErrorComponent /> : null;
+    const err = error ? <Error /> : null;
 
     return (
       <div>
         {spinner}
         {elements}
+        {nodata}
         {pagination}
         {err}
       </div>

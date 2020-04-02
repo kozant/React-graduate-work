@@ -2,10 +2,8 @@ import React, { Component } from "react";
 
 import { Link } from "react-router-dom";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
-
 import "./article-item.css";
+import FavouriteLike from "../favourite-like";
 
 export default class ArticleItem extends Component {
   render() {
@@ -17,6 +15,7 @@ export default class ArticleItem extends Component {
         </li>
       );
     });
+
     return (
       <div className="article-preview">
         <div>
@@ -25,15 +24,17 @@ export default class ArticleItem extends Component {
               <img src={data.image} />
             </Link>
             <div className="info">
-              <Link to={`/profile/${data.slug}`} className="author">
+              <Link to={`/profile/${data.author}`} className="author">
                 {data.author}
               </Link>
               <span className="date">{data.updatedAt}</span>
             </div>
             <div className="pull-xs-right">
-              <button className="btn btn-sm btn-outline-primary">
-                <FontAwesomeIcon icon={faHeart} /> {data.favoritesCount}
-              </button>
+              <FavouriteLike
+                className="btn btn-sm btn-outline-primary"
+                likeCount={data.favoritesCount}
+                slug={data.slug}
+              ></FavouriteLike>
             </div>
           </div>
         </div>

@@ -11,7 +11,7 @@ export default class ContainerPage extends Component {
 
   state = {
     articles: [],
-    articlesCount: 500,
+    articlesCount: null,
     indexPagination: 1,
     token: null,
 
@@ -26,11 +26,36 @@ export default class ContainerPage extends Component {
   };
 
   componentDidMount() {
-    this.loadAllArticles(this.state.limit, this.state.offset);
+    this.setState({
+      token: localStorage.getItem("token")
+    });
+    this.loadArticles();
   }
 
-  loadAllArticles = (limit, offset) => {
-    this.DataService.getAllArticles(limit, offset)
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.typeFeed !== prevState.typeFeed) {
+      this.loadArticles();
+    }
+  }
+
+  loadArticles = () => {
+    const payLoad = {
+      limit: this.state.limit,
+      offset: this.state.offset,
+      token: this.state.token
+    };
+
+    let serviceName;
+    if (this.state.typeFeed === "globalFeed") {
+      serviceName = "getAllArticles";
+    } else if (this.state.typeFeed === "yourFeed") {
+      serviceName = "getYourArticles";
+    } else if (this.state.typeFeed === "tagFeed") {
+      serviceName = "getArticlesWithTag";
+      payLoad.tag = this.state.tag;
+    }
+
+    this.DataService[serviceName](payLoad)
       .then(data => {
         this.setState({
           articles: data.articles,
@@ -41,59 +66,16 @@ export default class ContainerPage extends Component {
       .catch(e => this.setState({ error: true }));
   };
 
-  loadYourArticles = (limit, offset) => {
-    this.DataService.getYourArticles(limit, offset)
-      .then(data => {
-        this.setState({
-          articles: data.articles,
-          articlesCount: data.articlesCount,
-          loading: false
-        });
-      })
-      .catch(e => this.setState({ error: true }));
-  };
-
-  loadArticlesWithTag = (limit, offset, tag) => {
-    this.DataService.getArticlesWithTag(limit, offset, tag)
-      .then(data => {
-        this.setState({
-          articles: data.articles,
-          articlesCount: data.articlesCount,
-          loading: false
-        });
-      })
-      .catch(e => this.setState({ error: true }));
-  };
-
-  tagClick = item => {
-    this.setState({
-      tag: item,
-      typeFeed: "tagFeed",
-      loading: true,
-      error: false,
-      indexPagination: 1
+  clickHandler = (type, item) => {
+    this.setState(() => {
+      return {
+        tag: item,
+        typeFeed: type,
+        loading: true,
+        error: false,
+        indexPagination: 1
+      };
     });
-    this.loadArticlesWithTag(this.state.limit, this.state.offset, item);
-  };
-
-  yourFeedClick = () => {
-    this.setState({
-      typeFeed: "yourFeed",
-      loading: true,
-      error: false,
-      indexPagination: 1
-    });
-    this.loadYourArticles(this.state.limit, this.state.offset);
-  };
-
-  globalFeedClick = () => {
-    this.setState({
-      typeFeed: "globalFeed",
-      loading: true,
-      error: false,
-      indexPagination: 1
-    });
-    this.loadAllArticles(this.state.limit, this.state.offset);
   };
 
   PaginationClick = page => {
@@ -105,19 +87,7 @@ export default class ContainerPage extends Component {
       loading: true
     });
 
-    if (this.state.typeFeed === "globalFeed") {
-      this.loadAllArticles(this.state.limit, this.state.offset);
-    }
-    if (this.state.typeFeed === "yourFeed") {
-      this.loadYourArticles(this.state.limit, this.state.offset);
-    }
-    if (this.state.typeFeed === "tagFeed") {
-      this.loadArticlesWithTag(
-        this.state.limit,
-        this.state.offset,
-        this.state.tag
-      );
-    }
+    this.loadArticles();
   };
 
   render() {
@@ -127,6 +97,7 @@ export default class ContainerPage extends Component {
       limit,
       tag,
       indexPagination,
+      token,
 
       typeFeed,
 
@@ -139,8 +110,8 @@ export default class ContainerPage extends Component {
         <FeedHeader
           tag={tag}
           typeFeed={typeFeed}
-          onYourFeedClick={this.yourFeedClick}
-          onGlobalFeedClick={this.globalFeedClick}
+          onClickHandler={this.clickHandler}
+          token={token}
         />
         <ArticleList
           data={articles}
@@ -156,7 +127,10 @@ export default class ContainerPage extends Component {
 
     return (
       <React.Fragment>
-        <Row left={main} right={<TagList onTagClick={this.tagClick} />} />
+        <Row
+          left={main}
+          right={<TagList onClickHandler={this.clickHandler} />}
+        />
       </React.Fragment>
     );
   }

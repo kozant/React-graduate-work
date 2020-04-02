@@ -1,9 +1,18 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import "./feed-header.css";
 
 export default class FeedHeader extends Component {
+  Redirect = () => {
+    if (this.props.token === null) {
+      return "/register";
+    } else {
+      return "/";
+    }
+  };
+
   render() {
-    const { tag, typeFeed, onYourFeedClick, onGlobalFeedClick } = this.props;
+    const { tag, typeFeed, onClickHandler } = this.props;
 
     let classNameTag = "nav-link",
       classNameGlobalFeed = "nav-link",
@@ -30,18 +39,20 @@ export default class FeedHeader extends Component {
         <div className="feed-toggle">
           <ul className="nav nav-pills outline-active">
             <li className="nav-item">
-              <input
-                type="button"
-                className={classNameYourFeed}
-                onClick={() => onYourFeedClick()}
-                value={"Your Feed"}
-              />
+              <Link to={this.Redirect()}>
+                <input
+                  type="button"
+                  className={classNameYourFeed}
+                  onClick={() => onClickHandler("yourFeed")}
+                  value={"Your Feed"}
+                />
+              </Link>
             </li>
             <li className="nav-item">
               <input
                 type="button"
                 className={classNameGlobalFeed}
-                onClick={() => onGlobalFeedClick()}
+                onClick={() => onClickHandler("globalFeed")}
                 value={"Global Feed"}
               />
             </li>
