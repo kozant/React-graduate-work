@@ -5,7 +5,7 @@ import "./feed-header.css";
 export default class FeedHeader extends Component {
   Redirect = () => {
     if (this.props.token === null) {
-      return "/register";
+      return "/login";
     } else {
       return "/";
     }

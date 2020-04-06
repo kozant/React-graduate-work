@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
+import ServerError from "../server-error-component";
 import DataService from "../../services/data-service";
 import "./sign-up.css";
 
@@ -13,20 +14,20 @@ export default class SignUp extends Component {
     username: null,
 
     status: null,
-    data: {}
+    data: {},
   };
 
-  onChangeEmail = e => {
+  onChangeEmail = (e) => {
     const value = e.target.value;
     this.setState({ email: value });
   };
 
-  onChangePassword = e => {
+  onChangePassword = (e) => {
     const value = e.target.value;
     this.setState({ password: value });
   };
 
-  onChangeName = e => {
+  onChangeName = (e) => {
     const value = e.target.value;
     this.setState({ username: value });
   };
@@ -35,56 +36,30 @@ export default class SignUp extends Component {
     const user = {
       email: this.state.email,
       password: this.state.password,
-      username: this.state.username
+      username: this.state.username,
     };
-    this.DataService.signUp({ user }).then(item => {
+    this.DataService.signUp({ user }).then((item) => {
       this.setState({
         status: item.status,
-        data: item.data
+        data: item.data,
       });
+      if (item.status === 200) {
+        this.props.onSetToken(
+          item.data.user.token,
+          item.data.user.email,
+          item.data.user.username
+        );
+      }
     });
   };
 
-  loadUsernameError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.username === undefined) {
-        return;
-      } else {
-        const username = (
-          <li>
-            username {data.errors.username[0] + " "}
-            {data.errors.username[1] + " "}
-            {data.errors.username[2]}
-          </li>
-        );
-        return username;
-      }
-    }
-  };
-  loadEmailError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.email === undefined) {
-        return;
-      } else {
-        const email = <li>email {data.errors.email[0]}</li>;
-        return email;
-      }
-    }
-  };
-  loadPasswordError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.password === undefined) {
-        return;
-      } else {
-        const password = <li>email {data.errors.password[0]}</li>;
-        return password;
-      }
-    }
-  };
   render() {
+    const { token } = this.props;
+
+    if (token) {
+      return <Redirect to="/" />;
+    }
+
     const { data, status } = this.state;
     if (status === 200) {
       localStorage.setItem("token", data.user.token);
@@ -102,15 +77,11 @@ export default class SignUp extends Component {
                 <Link to="/login">Have an account?</Link>
               </p>
               <div>
-                <ul className="error-messages">
-                  {this.loadUsernameError()}
-                  {this.loadEmailError()}
-                  {this.loadPasswordError()}
-                </ul>
+                <ServerError data={data} status={status} />
               </div>
               <form
                 className="ng-untouched ng-pristine ng-invalid"
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault();
                 }}
               >

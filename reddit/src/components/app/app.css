@@ -1,3 +1,9 @@
+html {
+  position: relative;
+  min-height: 100%;
+  padding-bottom: 100px;
+}
+
 .top-panel {
   margin: 1rem 0;
   justify-content: center;

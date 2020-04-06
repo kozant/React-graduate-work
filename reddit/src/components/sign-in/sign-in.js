@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
+import ServerError from "../server-error-component";
 import DataService from "../../services/data-service";
 import "./sign-in.css";
 
@@ -12,15 +13,15 @@ export default class SignIn extends Component {
     password: null,
 
     status: null,
-    data: {}
+    data: {},
   };
 
-  onChangeEmail = e => {
+  onChangeEmail = (e) => {
     const value = e.target.value;
     this.setState({ email: value });
   };
 
-  onChangePassword = e => {
+  onChangePassword = (e) => {
     const value = e.target.value;
     this.setState({ password: value });
   };
@@ -29,32 +30,29 @@ export default class SignIn extends Component {
     const user = {
       email: this.state.email,
       password: this.state.password,
-      username: this.state.username
+      username: this.state.username,
     };
-    this.DataService.signIn({ user }).then(item => {
+    this.DataService.signIn({ user }).then((item) => {
       this.setState({
         status: item.status,
-        data: item.data
+        data: item.data,
       });
-      this.props.onSetToken(item.data.user.token);
+      if (item.status === 200) {
+        this.props.onSetToken(
+          item.data.user.token,
+          item.data.user.email,
+          item.data.user.username
+        );
+      }
     });
   };
 
-  loadError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors["email or password"][0] === undefined) {
-        return;
-      } else {
-        const error = (
-          <li>email or password {data.errors["email or password"][0]}</li>
-        );
-        return error;
-      }
-    }
-  };
-
   render() {
+    const { token } = this.props;
+
+    if (token) {
+      return <Redirect to="/" />;
+    }
     const { data, status } = this.state;
     if (status === 200) {
       localStorage.setItem("token", data.user.token);
@@ -74,11 +72,11 @@ export default class SignIn extends Component {
                 <Link to="/register">Need an account?</Link>
               </p>
               <div>
-                <ul className="error-messages">{this.loadError()}</ul>
+                <ServerError data={data} status={status} />
               </div>
               <form
                 className="ng-untouched ng-pristine ng-invalid"
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault();
                 }}
               >

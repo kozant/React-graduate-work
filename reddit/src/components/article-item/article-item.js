@@ -7,7 +7,7 @@ import FavouriteLike from "../favourite-like";
 
 export default class ArticleItem extends Component {
   render() {
-    const { data } = this.props;
+    const { data, token } = this.props;
     const elements = data.tagList.map((item, index) => {
       return (
         <li key={index} className="tag-default tag-pill tag-outline">
@@ -20,7 +20,7 @@ export default class ArticleItem extends Component {
       <div className="article-preview">
         <div>
           <div className="article-meta">
-            <Link to={`/profile/${data.slug}`}>
+            <Link to={`/profile/${data.author}`}>
               <img src={data.image} />
             </Link>
             <div className="info">
@@ -32,8 +32,10 @@ export default class ArticleItem extends Component {
             <div className="pull-xs-right">
               <FavouriteLike
                 className="btn btn-sm btn-outline-primary"
-                likeCount={data.favoritesCount}
+                favoritesCount={data.favoritesCount}
+                favorited={data.favorited}
                 slug={data.slug}
+                token={token}
               ></FavouriteLike>
             </div>
           </div>

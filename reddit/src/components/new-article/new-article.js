@@ -1,39 +1,57 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router";
+import { withRouter } from "react-router-dom";
+import ServerError from "../server-error-component";
 import DataService from "../../services/data-service";
 
 import "./new-article.css";
 
-export default class NewArticle extends Component {
+class NewArticle extends Component {
   DataService = new DataService();
   state = {
-    title: null,
-    desc: null,
-    body: null,
+    title: "",
+    desc: "",
+    body: "",
     tags: [],
 
     status: null,
-    data: {}
+    data: {},
   };
 
-  onRecordTitle = e => {
+  componentDidMount() {
+    if (this.props.match.params.slug) {
+      this.getArticle(this.props.match.params.slug);
+    }
+  }
+
+  onRecordTitle = (e) => {
     const value = e.target.value;
     this.setState({ title: value });
   };
 
-  onRecordDesc = e => {
+  onRecordDesc = (e) => {
     const value = e.target.value;
     this.setState({ desc: value });
   };
 
-  onRecordBody = e => {
+  onRecordBody = (e) => {
     const value = e.target.value;
     this.setState({ body: value });
   };
 
-  onRecordTags = e => {
+  onRecordTags = (e) => {
     const value = e.target.value;
     this.setState({ tags: value });
+  };
+
+  getArticle = (slug) => {
+    this.DataService.getArticle(slug).then((article) => {
+      this.setState({
+        title: article.title,
+        desc: article.description,
+        body: article.body,
+      });
+    });
   };
 
   sendData = () => {
@@ -41,80 +59,40 @@ export default class NewArticle extends Component {
       title: this.state.title,
       description: this.state.desc,
       body: this.state.body,
-      tags: this.state.tags
+      tags: this.state.tags,
     };
-    const token = localStorage.getItem("token");
-    this.DataService.postArticle({ article }, token).then(item => {
+
+    let serviceName = "postArticle";
+    if (this.props.match.params.slug) {
+      serviceName = "editArticle";
+    }
+    const slug = this.props.match.params.slug;
+    const token = this.props.token;
+
+    this.DataService[serviceName]({ article }, token, slug).then((item) => {
       this.setState({
         status: item.status,
-        data: item.data
+        data: item.data,
       });
     });
   };
-  loadTitleError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.title === undefined) {
-        return;
-      } else {
-        const title = (
-          <li>
-            title {data.errors.title[0] + " "}
-            {data.errors.title[1]}
-          </li>
-        );
-        return title;
-      }
-    }
-  };
-  loadBodyError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.body === undefined) {
-        return;
-      } else {
-        const body = <li>body {data.errors.body[0]}</li>;
-        return body;
-      }
-    }
-  };
-  loadDescError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.description === undefined) {
-        return;
-      } else {
-        const desc = (
-          <li>
-            description {data.errors.description[0] + " "}
-            {data.errors.description[1]}
-          </li>
-        );
-        return desc;
-      }
-    }
-  };
+
   render() {
-    const { data, status } = this.state;
+    const { data, status, title, desc, body } = this.state;
     if (status === 200) {
-      console.log(data.article.slug);
       return <Redirect to={`/article/${data.article.slug}`} />;
     }
     return (
-      <div className="editor-page">
+      <div className="new-article">
         <div className="container page">
           <div className="row">
             <div className="col-md-10 offset-md-1 col-xs-12">
               <div>
-                <ul className="error-messages">
-                  {this.loadTitleError()}
-                  {this.loadBodyError()}
-                  {this.loadDescError()}
-                </ul>
+                <ServerError data={data} status={status} />
               </div>
               <form
                 className="ng-untouched ng-pristine ng-valid"
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault();
                 }}
               >
@@ -126,6 +104,7 @@ export default class NewArticle extends Component {
                       placeholder="Article Title"
                       type="text"
                       onChange={this.onRecordTitle}
+                      value={title}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -135,6 +114,7 @@ export default class NewArticle extends Component {
                       placeholder="What's this article about?"
                       type="text"
                       onChange={this.onRecordDesc}
+                      value={desc}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -144,6 +124,7 @@ export default class NewArticle extends Component {
                       placeholder="Write your article (in markdown)"
                       rows="8"
                       onChange={this.onRecordBody}
+                      value={body}
                     ></textarea>
                   </fieldset>
                   <fieldset className="form-group">
@@ -171,3 +152,7 @@ export default class NewArticle extends Component {
     );
   }
 }
+
+const RecordArticle = withRouter(NewArticle);
+
+export { RecordArticle };

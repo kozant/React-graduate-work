@@ -1,18 +1,27 @@
-.app-header {
-  font-family: source sans pro, sans-serif;
+.app-header .navbar {
+  position: relative;
+  padding: 0.5rem 1rem;
+}
+
+.app-header .nav {
+  display: block;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
 }
 
 .app-header .navbar-brand {
-  color: #5cb85c;
-  font-weight: bold;
+  font-family: titillium web, sans-serif;
+  font-size: 1.5rem !important;
+  padding-top: 0 !important;
+  margin-right: 2rem !important;
+  color: #5cb85c !important;
 }
 
-.app-header .navbar-brand:hover {
-  color: #5cb85c;
-  font-weight: bold;
+.app-header .navbar-nav .nav-item {
+  float: left;
 }
 
-.app-header .navbar-brand:focus {
-  color: #5cb85c;
-  font-weight: bold;
+.app-header .navbar-nav .nav-item + .nav-item {
+  margin-left: 1rem;
 }

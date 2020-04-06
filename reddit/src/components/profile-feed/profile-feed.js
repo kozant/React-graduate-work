@@ -16,7 +16,7 @@ export default class ProfileFeed extends Component {
       classNameFavouritedPosts = "nav-link active";
     }
     return (
-      <div className="container profile-feed">
+      <div className="profile-feed">
         <ul className="nav nav-pills outline-active">
           <li className="nav-item">
             <input

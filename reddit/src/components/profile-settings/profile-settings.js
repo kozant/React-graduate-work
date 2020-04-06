@@ -1,43 +1,44 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
+import ServerError from "../server-error-component";
 import DataService from "../../services/data-service";
 import "./profile-settings.css";
 
 export default class ProfileSettings extends Component {
   DataService = new DataService();
   state = {
-    email: null,
+    email: "",
     password: null,
-    username: null,
+    username: "",
     bio: null,
     image: null,
 
     status: null,
-    data: {}
+    data: {},
   };
 
-  onRecordBio = e => {
+  onRecordBio = (e) => {
     const value = e.target.value;
     this.setState({ bio: value });
   };
 
-  onRecordEmail = e => {
+  onRecordEmail = (e) => {
     const value = e.target.value;
     this.setState({ email: value });
   };
 
-  onRecordPassword = e => {
+  onRecordPassword = (e) => {
     const value = e.target.value;
     this.setState({ password: value });
   };
 
-  onRecordUsername = e => {
+  onRecordUsername = (e) => {
     const value = e.target.value;
     this.setState({ username: value });
   };
 
-  onRecordImage = e => {
+  onRecordImage = (e) => {
     const value = e.target.value;
     this.setState({ image: value });
   };
@@ -48,64 +49,27 @@ export default class ProfileSettings extends Component {
       password: this.state.password,
       username: this.state.username,
       bio: this.state.bio,
-      image: this.state.image
+      image: this.state.image,
     };
-    const token = localStorage.getItem("token");
-    this.DataService.changeUserInfo({ user }, token).then(item => {
+    const token = this.props.token;
+    this.DataService.changeUserInfo({ user }, token).then((item) => {
       this.setState({
         status: item.status,
-        data: item.data
+        data: item.data,
       });
     });
   };
 
   logout = () => {
+    localStorage.clear();
     this.props.onSetToken();
   };
 
-  loadUsernameError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.username === undefined) {
-        return;
-      } else {
-        const username = (
-          <li>
-            username {data.errors.username[0] + " "}
-            {data.errors.username[1] + " "}
-            {data.errors.username[2]}
-          </li>
-        );
-        return username;
-      }
-    }
-  };
-  loadEmailError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.email === undefined) {
-        return;
-      } else {
-        const email = <li>email {data.errors.email[0]}</li>;
-        return email;
-      }
-    }
-  };
-  loadPasswordError = () => {
-    const { status, data } = this.state;
-    if (status === 422) {
-      if (data.errors.password === undefined) {
-        return;
-      } else {
-        const password = <li>email {data.errors.password[0]}</li>;
-        return password;
-      }
-    }
-  };
   componentDidMount() {
+    const { email, username } = this.props;
     this.setState({
-      email: localStorage.getItem("email"),
-      username: localStorage.getItem("username")
+      email: email,
+      username: username,
     });
   }
   render() {
@@ -123,15 +87,11 @@ export default class ProfileSettings extends Component {
             <div className="col-md-6 offset-md-3 col-xs-12">
               <h1 className="text-xs-center">Your Settings</h1>
               <div>
-                <ul className="error-messages">
-                  {this.loadEmailError()}
-                  {this.loadPasswordError()}
-                  {this.loadUsernameError()}
-                </ul>
+                <ServerError data={data} status={status} />
               </div>
               <form
                 className="ng-untouched ng-pristine ng-valid"
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault();
                 }}
               >
@@ -151,7 +111,7 @@ export default class ProfileSettings extends Component {
                       formcontrolname="username"
                       placeholder="Username"
                       type="text"
-                      onChange={e =>
+                      onChange={(e) =>
                         this.setState({ username: e.target.value })
                       }
                       value={username}

@@ -1,7 +1,7 @@
 export default class DataService {
   _apiBase = "https://conduit.productionready.io/api";
 
-  getResource = async url => {
+  getResource = async (url) => {
     const res = await fetch(`${this._apiBase}${url}`);
 
     if (!res.ok) {
@@ -14,8 +14,8 @@ export default class DataService {
     const res = await fetch(`${this._apiBase}${url}`, {
       method: "GET",
       headers: {
-        authorization: `Token ${token}`
-      }
+        authorization: `Token ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -24,35 +24,35 @@ export default class DataService {
     return await res.json();
   };
 
-  signUp = async user => {
+  signUp = async (user) => {
     const res = await fetch(`${this._apiBase}/users`, {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     });
 
     return {
       data: await res.json(),
-      status: res.status
+      status: res.status,
     };
   };
 
-  signIn = async user => {
+  signIn = async (user) => {
     const res = await fetch(`${this._apiBase}/users/login`, {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     });
 
     return {
       data: await res.json(),
-      status: res.status
+      status: res.status,
     };
   };
 
@@ -62,14 +62,14 @@ export default class DataService {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        authorization: `Token ${token}`
+        authorization: `Token ${token}`,
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     });
 
     return {
       data: await res.json(),
-      status: res.status
+      status: res.status,
     };
   };
 
@@ -79,14 +79,31 @@ export default class DataService {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        authorization: `Token ${token}`
+        authorization: `Token ${token}`,
       },
-      body: JSON.stringify(article)
+      body: JSON.stringify(article),
     });
 
     return {
       data: await res.json(),
-      status: res.status
+      status: res.status,
+    };
+  };
+
+  editArticle = async (article, token, slug) => {
+    const res = await fetch(`${this._apiBase}/articles/${slug}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Token ${token}`,
+      },
+      body: JSON.stringify(article),
+    });
+
+    return {
+      data: await res.json(),
+      status: res.status,
     };
   };
 
@@ -96,35 +113,74 @@ export default class DataService {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        authorization: `Token ${token}`
-      }
+        authorization: `Token ${token}`,
+      },
     });
     return res.status;
   };
 
-  getAllArticles = async ({ limit, offset }) => {
-    const res = await this.getResource(
-      `/articles?&limit=${limit}&offset=${offset}`
-    );
-    return {
-      articles: res.articles.map(this._transformArticle),
-      articlesCount: res.articlesCount
-    };
+  Follow = async (author, token, method) => {
+    const res = await fetch(`${this._apiBase}/profiles/${author}/follow`, {
+      method: `${method}`,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Token ${token}`,
+      },
+    });
+    return res.status;
   };
 
-  getArticle = async slug => {
+  getAllArticles = async ({ limit, offset, token }) => {
+    if (token) {
+      const res = await this.getResourceWithToken(
+        `/articles?&limit=${limit}&offset=${offset}`,
+        token
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    } else {
+      const res = await this.getResource(
+        `/articles?&limit=${limit}&offset=${offset}`
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    }
+  };
+
+  getArticle = async (slug) => {
     const { article } = await this.getResource(`/articles/${slug}`);
     return this._transformArticle(article);
   };
 
-  getProfile = async name => {
-    const { profile } = await this.getResource(`/profiles/${name}`);
-    return this._transformProfile(profile);
+  deleteArticle = async (slug, token) => {
+    const res = await fetch(`${this._apiBase}/articles/${slug}`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Token ${token}`,
+      },
+    });
+
+    return res.status;
   };
 
-  getUser = async () => {
-    const res = await this.getResourse(`/user`);
-    return res;
+  getProfile = async (name, token) => {
+    if (token) {
+      const { profile } = await this.getResourceWithToken(
+        `/profiles/${name}`,
+        token
+      );
+      return this._transformProfile(profile);
+    } else {
+      const { profile } = await this.getResource(`/profiles/${name}`);
+      return this._transformProfile(profile);
+    }
   };
 
   getYourArticles = async ({ limit, offset, token }) => {
@@ -134,38 +190,71 @@ export default class DataService {
     );
     return {
       articles: res.articles.map(this._transformArticle),
-      articlesCount: res.articlesCount
+      articlesCount: res.articlesCount,
     };
   };
 
-  getArticlesWithTag = async ({ limit, offset, tag }) => {
-    const res = await this.getResource(
-      `/articles?tag=${tag}&limit=${limit}&offset=${offset}`
-    );
-    return {
-      articles: res.articles.map(this._transformArticle),
-      articlesCount: res.articlesCount
-    };
+  getArticlesWithTag = async ({ limit, offset, tag, token }) => {
+    if (token) {
+      const res = await this.getResourceWithToken(
+        `/articles?tag=${tag}&limit=${limit}&offset=${offset}`,
+        token
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    } else {
+      const res = await this.getResource(
+        `/articles?tag=${tag}&limit=${limit}&offset=${offset}`
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    }
   };
 
-  getAuthorArticles = async ({ author, limit, offset }) => {
-    const res = await this.getResource(
-      `/articles?author=${author}&limit=${limit}&offset=${offset}`
-    );
-    return {
-      articles: res.articles.map(this._transformArticle),
-      articlesCount: res.articlesCount
-    };
+  getAuthorArticles = async ({ author, limit, offset, token }) => {
+    if (token) {
+      const res = await this.getResourceWithToken(
+        `/articles?author=${author}&limit=${limit}&offset=${offset}`,
+        token
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    } else {
+      const res = await this.getResource(
+        `/articles?author=${author}&limit=${limit}&offset=${offset}`
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    }
   };
 
-  getFavouritedArticles = async ({ author, limit, offset }) => {
-    const res = await this.getResource(
-      `/articles?favorited=${author}&limit=${limit}&offset=${offset}`
-    );
-    return {
-      articles: res.articles.map(this._transformArticle),
-      articlesCount: res.articlesCount
-    };
+  getFavouritedArticles = async ({ author, limit, offset, token }) => {
+    if (token) {
+      const res = await this.getResourceWithToken(
+        `/articles?favorited=${author}&limit=${limit}&offset=${offset}`,
+        token
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    } else {
+      const res = await this.getResource(
+        `/articles?favorited=${author}&limit=${limit}&offset=${offset}`
+      );
+      return {
+        articles: res.articles.map(this._transformArticle),
+        articlesCount: res.articlesCount,
+      };
+    }
   };
 
   getAllPopularTags = async () => {
@@ -173,25 +262,27 @@ export default class DataService {
     return res.tags;
   };
 
-  _transformArticle = article => {
+  _transformArticle = (article) => {
     return {
       slug: article.slug,
       title: article.title,
       body: article.body,
+      description: article.description,
       author: article.author.username,
       image: article.author.image,
       updatedAt: article.updatedAt,
+      favorited: article.favorited,
       favoritesCount: article.favoritesCount,
-      tagList: article.tagList
+      tagList: article.tagList,
     };
   };
 
-  _transformProfile = profile => {
+  _transformProfile = (profile) => {
     return {
       username: profile.username,
       bio: profile.bio,
       image: profile.image,
-      following: profile.following
+      following: profile.following,
     };
   };
 }

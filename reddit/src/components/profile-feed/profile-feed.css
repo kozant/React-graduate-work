@@ -1,4 +1,5 @@
 .profile-feed {
+  margin-top: 20px;
   margin-bottom: -1px;
 }
 
@@ -19,6 +20,10 @@
   color: #5cb85c !important;
 }
 
+.nav-pills.outline-active .nav-link:hover {
+  color: #555;
+}
+
 .profile-feed .nav-link {
   cursor: pointer;
 }
@@ -27,21 +32,6 @@
   color: #fff;
   cursor: default;
   background-color: #5cb85c;
-}
-
-.profile-feed .nav-pills .nav-link {
-  display: block;
-  padding: 0.5em 1em;
-  border-radius: 0.25rem;
-}
-
-.profile-feed a:not([href]) {
-  color: inherit;
-  text-decoration: none;
-}
-
-.profile-feed a {
-  touch-action: manipulation;
 }
 
 .profile-feed .hidden {

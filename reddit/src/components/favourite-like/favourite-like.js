@@ -9,31 +9,87 @@ import DataService from "../../services/data-service";
 export default class FavouriteLike extends Component {
   DataService = new DataService();
 
-  postLike = slug => {
-    const token = localStorage.getItem("token");
-    this.DataService.Like(slug, token, "POST").then(item => {
-      if (item === 401) {
-        return <Redirect to="/login" />;
+  state = {
+    loggedIn: null,
+    activeBtn: "",
+    likeCount: null,
+  };
+
+  componentDidMount() {
+    const { favoritesCount, favorited } = this.props;
+
+    this.setState({ likeCount: favoritesCount });
+
+    if (favorited) {
+      this.setState({ activeBtn: "active" });
+    } else {
+      this.setState({ activeBtn: "" });
+    }
+  }
+
+  postLike = (slug, token) => {
+    this.DataService.Like(slug, token, "POST").then((item) => {
+      if (item === 200) {
+        this.setState((prevState) => {
+          const nextState = prevState.likeCount + 1;
+          return {
+            activeBtn: "active",
+            likeCount: nextState,
+          };
+        });
       }
     });
   };
 
-  deleteLike = slug => {
-    const token = localStorage.getItem("token");
-    this.DataService.Like(slug, token, "DELETE").then(item => {
-      if (item === 401) {
-        return <Redirect to="/login" />;
+  deleteLike = (slug, token) => {
+    this.DataService.Like(slug, token, "DELETE").then((item) => {
+      if (item === 200) {
+        this.setState((prevState) => {
+          const nextState = prevState.likeCount - 1;
+          return {
+            activeBtn: "",
+            likeCount: nextState,
+          };
+        });
       }
     });
   };
+
+  like = (slug, token, activeBtn) => {
+    if (activeBtn === "active") {
+      this.deleteLike(slug, token);
+    }
+
+    if (activeBtn === "") {
+      this.postLike(slug, token);
+    }
+
+    if (!token) {
+      this.setState({ loggedIn: <Redirect to="/login" /> });
+    }
+  };
+
   render() {
-    const { likeCount, slug } = this.props;
+    let text = null,
+      left = null,
+      right = null;
+    const { slug, token, page } = this.props;
+    const { activeBtn, likeCount, loggedIn } = this.state;
+    if (page) {
+      text = "Favourite Article ";
+      left = "(";
+      right = ")";
+    }
     return (
       <button
-        className="btn btn-sm btn-outline-primary"
-        //onClick={this.deleteLike(slug)}
+        className={`btn btn-sm btn-outline-primary ${activeBtn}`}
+        onClick={() => this.like(slug, token, activeBtn)}
       >
-        <FontAwesomeIcon icon={faHeart} /> {likeCount}
+        {loggedIn}
+        <FontAwesomeIcon icon={faHeart} /> {text}
+        {left}
+        {likeCount}
+        {right}
       </button>
     );
   }

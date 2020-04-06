@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 
 import AppHeader from "../app-header";
+import AppFooter from "../app-footer";
 import SignIn from "../sign-in";
 import SignUp from "../sign-up";
-import Banner from "../banner";
 import ContainerPage from "../container-page";
 import ArticlePage from "../pages/article-page";
 import ProfilePage from "../pages/profile-page";
 import ProfileSettings from "../profile-settings";
-import NewArticle from "../new-article";
+import RecordArticle from "../new-article";
 
 import DataService from "../../services/data-service";
 import { DataServiceProvider } from "../../context";
@@ -20,11 +20,13 @@ import "./app.css";
 class App extends Component {
   DataService = new DataService();
   state = {
-    token: localStorage.getItem("token") || null
+    token: localStorage.getItem("token") || null,
+    email: localStorage.getItem("email") || null,
+    username: localStorage.getItem("username") || null,
   };
 
-  setToken = (token = null) => {
-    this.setState({ token });
+  setToken = (token = null, email = null, username = null) => {
+    this.setState({ token, email, username });
   };
 
   render() {
@@ -33,25 +35,72 @@ class App extends Component {
         <div className="todo-app">
           <Router>
             <AppHeader token={this.state.token} />
-            {/* <Banner /> */}
+
             <Switch>
-              <Route path="/" component={ContainerPage} exact />
+              <Route
+                path="/"
+                render={() => <ContainerPage token={this.state.token} />}
+                exact
+              />
               <Route
                 path="/login"
-                render={() => <SignIn onSetToken={this.setToken} />}
+                render={() => (
+                  <SignIn onSetToken={this.setToken} token={this.state.token} />
+                )}
                 exact
               />
-              <Route path="/register" component={SignUp} exact />
-              <Route path="/editor" component={NewArticle} exact />
+              <Route
+                path="/register"
+                render={() => (
+                  <SignUp onSetToken={this.setToken} token={this.state.token} />
+                )}
+                exact
+              />
+              <Route
+                path="/editor"
+                render={() => <RecordArticle token={this.state.token} />}
+                exact
+              />
+              <Route
+                path="/editor/:slug"
+                render={() => <RecordArticle token={this.state.token} />}
+                exact
+              />
               <Route
                 path="/settings"
-                render={() => <ProfileSettings onSetToken={this.setToken} />}
+                render={() => (
+                  <ProfileSettings
+                    onSetToken={this.setToken}
+                    token={this.state.token}
+                    email={this.state.email}
+                    username={this.state.username}
+                  />
+                )}
                 exact
               />
-              <Route path="/article/:slug" component={ArticlePage} exact />
-              <Route path="/profile/:author" component={ProfilePage} exact />
+              <Route
+                path="/article/:slug"
+                render={() => (
+                  <ArticlePage
+                    token={this.state.token}
+                    username={this.state.username}
+                  />
+                )}
+                exact
+              />
+              <Route
+                path="/profile/:author"
+                render={() => (
+                  <ProfilePage
+                    token={this.state.token}
+                    username={this.state.username}
+                  />
+                )}
+                exact
+              />
               <Route render={() => <h1>Page not found!</h1>} />
             </Switch>
+            <AppFooter />
           </Router>
         </div>
       </DataServiceProvider>

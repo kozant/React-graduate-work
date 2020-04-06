@@ -2,22 +2,26 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { withService } from "../../../hocs/withService";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import ProfileFeed from "../../profile-feed";
 import ArticleList from "../../article-list";
+import FollowProfile from "../../follow-profile";
 
 import Spinner from "../../spinner";
 
 import "./profile-page.css";
 
-const ProfilePage = ({ match, dataService }) => {
+const ProfilePage = ({ match, dataService, token, username }) => {
   const { getProfile, getAuthorArticles, getFavouritedArticles } = dataService;
-  console.log(match.params.author);
   return (
     <ItemDetails
-      itemId={match.params.author}
+      author={match.params.author}
       getProfile={getProfile}
       getAuthorArticles={getAuthorArticles}
       getFavouritedArticles={getFavouritedArticles}
+      token={token}
+      username={username}
     />
   );
 };
@@ -38,7 +42,7 @@ class ItemDetails extends Component {
     loadingArticles: true,
     errorArticles: false,
 
-    typeFeed: "myPosts"
+    typeFeed: "myPosts",
   };
 
   componentDidMount() {
@@ -47,7 +51,7 @@ class ItemDetails extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.itemId !== prevProps.itemId) {
+    if (this.props.author !== prevProps.author) {
       this.loadPage();
     }
     if (this.state.typeFeed !== prevState.typeFeed) {
@@ -56,23 +60,27 @@ class ItemDetails extends Component {
   }
 
   loadPage() {
-    const { itemId } = this.props;
-    if (!itemId) {
+    const { author, token } = this.props;
+    if (!author) {
       return;
     }
     this.props
-      .getProfile(itemId)
-      .then(item => {
-        this.setState({ authorData: item, loadingPage: false });
+      .getProfile(author, token)
+      .then((profile) => {
+        this.setState({
+          authorData: profile,
+          loadingPage: false,
+        });
       })
-      .catch(e => this.setState({ errorPage: true }));
+      .catch((e) => this.setState({ errorPage: true }));
   }
 
   loadArticles = () => {
     const payLoad = {
-      author: this.props.itemId,
+      author: this.props.author,
       limit: this.state.limit,
-      offset: this.state.offset
+      offset: this.state.offset,
+      token: this.props.token,
     };
 
     let serviceName;
@@ -83,34 +91,34 @@ class ItemDetails extends Component {
     }
 
     this.props[serviceName](payLoad)
-      .then(data => {
+      .then((data) => {
         this.setState({
           articles: data.articles,
           articlesCount: data.articlesCount,
-          loadingArticles: false
+          loadingArticles: false,
         });
       })
-      .catch(e => this.setState({ errorArticles: true }));
+      .catch((e) => this.setState({ errorArticles: true }));
   };
 
-  clickHandler = type => {
+  clickHandler = (type) => {
     this.setState(() => {
       return {
         typeFeed: type,
         loadingArticles: true,
         errorArticles: false,
-        indexPagination: 1
+        indexPagination: 1,
       };
     });
   };
 
-  PaginationClick = page => {
+  PaginationClick = (page) => {
     page = page + 1;
 
     this.setState({
       indexPagination: page,
       offset: page * 10 - 10,
-      loadingArticles: true
+      loadingArticles: true,
     });
 
     this.loadArticles();
@@ -131,26 +139,26 @@ class ItemDetails extends Component {
       loadingPage,
       errorPage,
 
-      authorData
+      authorData,
     } = this.state;
 
+    const { author, token, username } = this.props;
     const yourProfile = (
       <Link to="/settings" className="ion-gear-a">
         <button className="btn btn-sm btn-outline-secondary action-btn">
-          Edit Profile Settings
+          <FontAwesomeIcon icon={faEdit} /> Edit Profile Settings
         </button>
       </Link>
     );
     const anotherProfile = (
-      <button className="btn btn-sm action-btn btn-outline-secondary">
-        <i className="ion-plus-round"></i> &nbsp; Follow {authorData.username}
-      </button>
+      <FollowProfile
+        author={authorData.username}
+        following={authorData.following}
+        token={this.props.token}
+      />
     );
 
-    const profileButton =
-      this.props.itemId === localStorage.getItem("username")
-        ? yourProfile
-        : anotherProfile;
+    const profileButton = author === username ? yourProfile : anotherProfile;
 
     const Content = (
       <React.Fragment>
@@ -161,33 +169,38 @@ class ItemDetails extends Component {
                 <div className="col-xs-12 col-md-10 offset-md-1">
                   <img className="user-img" src={authorData.image} />
                   <h4>{authorData.username}</h4>
-                  <p></p>
+                  <p>{authorData.bio}</p>
                   <div>{profileButton}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <ProfileFeed typeFeed={typeFeed} onClickHandler={this.clickHandler} />
-        <ArticleList
-          data={articles}
-          loading={loadingArticles}
-          error={errorArticles}
-          limit={limit}
-          articlesCount={articlesCount}
-          onPaginationClick={this.PaginationClick}
-          indexPagination={indexPagination}
-        />
+        <div className="container">
+          <ProfileFeed typeFeed={typeFeed} onClickHandler={this.clickHandler} />
+          <ArticleList
+            data={articles}
+            loading={loadingArticles}
+            error={errorArticles}
+            limit={limit}
+            articlesCount={articlesCount}
+            onPaginationClick={this.PaginationClick}
+            indexPagination={indexPagination}
+            token={token}
+          />
+        </div>
       </React.Fragment>
     );
 
-    const spinner = loadingPage ? <Spinner /> : null;
-    const content = !loadingPage ? Content : null;
+    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
+    const content = !loadingPage && !errorPage ? Content : null;
+    const error = errorPage ? <div>Error</div> : null;
 
     return (
       <React.Fragment>
         {spinner}
         {content}
+        {error}
       </React.Fragment>
     );
   }

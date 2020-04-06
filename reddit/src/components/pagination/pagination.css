@@ -6,28 +6,30 @@
   border-radius: 0.25rem;
 }
 
-.page-item {
+.pagination .page-item {
   display: inline;
 }
 
-.page-item.active .page-link {
+.pagination .page-item.active .page-link {
   z-index: 3;
   color: #fff;
   background-color: #5cb85c;
   border-color: #5cb85c;
 }
 
-.page-link {
+.pagination .page-link {
   position: relative;
   float: left;
   padding: 0.5rem 0.75rem;
   margin-left: -1px;
-  color: #5cb85c;
+  color: black;
   text-decoration: none;
   background-color: #fff;
   border: 1px solid #ddd;
 }
 
-.page-link:hover {
-  color: #5cb85c;
+.pagination .page-link:hover {
+  color: white;
+  background-color: #5cb85c;
+  border-color: #5cb85c;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 
+import Banner from "../banner";
 import Row from "../row";
 import FeedHeader from "../feed-header";
 import TagList from "../tag-list";
@@ -13,7 +14,6 @@ export default class ContainerPage extends Component {
     articles: [],
     articlesCount: null,
     indexPagination: 1,
-    token: null,
 
     limit: 10,
     offset: 0,
@@ -22,19 +22,23 @@ export default class ContainerPage extends Component {
     loading: true,
     error: false,
 
-    typeFeed: "globalFeed"
+    typeFeed: "globalFeed",
   };
 
   componentDidMount() {
-    this.setState({
-      token: localStorage.getItem("token")
-    });
     this.loadArticles();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.typeFeed !== prevState.typeFeed) {
-      this.loadArticles();
+    if (this.state.typeFeed === "globalFeed" || "yourFeed") {
+      if (this.state.typeFeed !== prevState.typeFeed) {
+        this.loadArticles();
+      }
+    }
+    if (this.state.typeFeed === "tagFeed") {
+      if (this.state.tag !== prevState.tag) {
+        this.loadArticles();
+      }
     }
   }
 
@@ -42,7 +46,7 @@ export default class ContainerPage extends Component {
     const payLoad = {
       limit: this.state.limit,
       offset: this.state.offset,
-      token: this.state.token
+      token: this.props.token,
     };
 
     let serviceName;
@@ -56,14 +60,14 @@ export default class ContainerPage extends Component {
     }
 
     this.DataService[serviceName](payLoad)
-      .then(data => {
+      .then((data) => {
         this.setState({
           articles: data.articles,
           articlesCount: data.articlesCount,
-          loading: false
+          loading: false,
         });
       })
-      .catch(e => this.setState({ error: true }));
+      .catch((e) => this.setState({ error: true }));
   };
 
   clickHandler = (type, item) => {
@@ -73,18 +77,18 @@ export default class ContainerPage extends Component {
         typeFeed: type,
         loading: true,
         error: false,
-        indexPagination: 1
+        indexPagination: 1,
       };
     });
   };
 
-  PaginationClick = page => {
+  PaginationClick = (page) => {
     page = page + 1;
 
     this.setState({
       indexPagination: page,
       offset: page * 10 - 10,
-      loading: true
+      loading: true,
     });
 
     this.loadArticles();
@@ -97,13 +101,14 @@ export default class ContainerPage extends Component {
       limit,
       tag,
       indexPagination,
-      token,
 
       typeFeed,
 
       loading,
-      error
+      error,
     } = this.state;
+
+    const { token } = this.props;
 
     const main = (
       <div>
@@ -117,6 +122,7 @@ export default class ContainerPage extends Component {
           data={articles}
           loading={loading}
           error={error}
+          token={token}
           limit={limit}
           articlesCount={articlesCount}
           onPaginationClick={this.PaginationClick}
@@ -127,6 +133,7 @@ export default class ContainerPage extends Component {
 
     return (
       <React.Fragment>
+        <Banner token={token} />
         <Row
           left={main}
           right={<TagList onClickHandler={this.clickHandler} />}

@@ -41,14 +41,3 @@ export default class Pagination extends Component {
     );
   }
 }
-
-{
-  /* <li className="page-item">
-            <input
-              type="button"
-              className="page-link"
-              onClick={() => onPaginationClick(this.state.label)}
-              value="1"
-            />
-          </li> */
-}

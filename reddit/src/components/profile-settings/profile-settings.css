@@ -1,0 +1,40 @@
+.settings-page .container.page {
+  margin-top: 1.5rem;
+}
+
+.settings-page .text-xs-center {
+  text-align: center !important;
+}
+
+.settings-page .pull-xs-right {
+  float: right !important;
+}
+.settings-page.btn-lg,
+.btn-group-lg > .btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.25rem;
+  border-radius: 0.3rem;
+}
+.settings-page .btn-primary {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #5cb85c;
+}
+
+.settings-page .btn-primary:hover {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #419641;
+}
+
+.settings-page .btn-outline-danger {
+  color: #b85c5c;
+  background-image: none;
+  background-color: transparent;
+  border-color: #b85c5c;
+}
+
+.settings-page .btn-outline-danger:hover {
+  color: white;
+  background-color: #b85c5c;
+}

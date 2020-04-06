@@ -28,19 +28,20 @@ export default class ArticleList extends Component {
       loading,
       articlesCount,
       error,
+      token,
       limit,
       onPaginationClick,
-      indexPagination
+      indexPagination,
     } = this.props;
 
     const spinner = loading && !error ? <Spinner /> : null;
     const elements =
       !loading && !error && data.length !== 0
-        ? data.map(item => {
-            return <ArticleItem key={item.slug} data={item} />;
+        ? data.map((item) => {
+            return <ArticleItem key={item.slug} data={item} token={token} />;
           })
         : null;
-    const nodata = !loading && !error && data.length == 0 ? <NoData /> : null;
+    const nodata = !loading && !error && data.length === 0 ? <NoData /> : null;
     const pagination =
       !loading && !error ? (
         <Pagination
