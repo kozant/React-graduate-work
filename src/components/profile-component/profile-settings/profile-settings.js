@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
-import ServerError from "../server-error-component";
-import DataService from "../../services/data-service";
+import ServerError from "../../shared/server-error-component";
+import { editProfile } from "../../../services/profile-service";
 import "./profile-settings.css";
 
 export default class ProfileSettings extends Component {
-  DataService = new DataService();
   state = {
     email: "",
     password: null,
@@ -52,10 +51,10 @@ export default class ProfileSettings extends Component {
       image: this.state.image,
     };
     const token = this.props.token;
-    this.DataService.changeUserInfo({ user }, token).then((item) => {
+    editProfile({ user }, token).then((profile) => {
       this.setState({
-        status: item.status,
-        data: item.data,
+        status: profile.status,
+        data: profile.data,
       });
     });
   };
@@ -74,6 +73,9 @@ export default class ProfileSettings extends Component {
   }
   render() {
     const { data, status, email, username } = this.state;
+    if (!this.props.token) {
+      return <Redirect to="/login" />;
+    }
     if (status === 200) {
       localStorage.setItem("token", data.user.token);
       localStorage.setItem("email", data.user.email);

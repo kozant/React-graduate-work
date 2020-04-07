@@ -1,26 +1,29 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { withRouter } from "react-router-dom";
-import ServerError from "../server-error-component";
-import DataService from "../../services/data-service";
+import ServerError from "../../shared/server-error-component";
+import {
+  getArticle,
+  postArticle,
+  editArticle,
+} from "../../../services/article-service";
 
 import "./new-article.css";
 
 class NewArticle extends Component {
-  DataService = new DataService();
   state = {
     title: "",
     desc: "",
     body: "",
     tags: [],
-
+    error: false,
     status: null,
     data: {},
   };
 
   componentDidMount() {
     if (this.props.match.params.slug) {
-      this.getArticle(this.props.match.params.slug);
+      this.getArticleData(this.props.match.params.slug);
     }
   }
 
@@ -44,14 +47,16 @@ class NewArticle extends Component {
     this.setState({ tags: value });
   };
 
-  getArticle = (slug) => {
-    this.DataService.getArticle(slug).then((article) => {
-      this.setState({
-        title: article.title,
-        desc: article.description,
-        body: article.body,
-      });
-    });
+  getArticleData = (slug) => {
+    getArticle(slug)
+      .then((article) => {
+        this.setState({
+          title: article.title,
+          desc: article.description,
+          body: article.body,
+        });
+      })
+      .catch((e) => this.setState({ error: true }));
   };
 
   sendData = () => {
@@ -62,14 +67,14 @@ class NewArticle extends Component {
       tags: this.state.tags,
     };
 
-    let serviceName = "postArticle";
+    let serviceName = postArticle;
     if (this.props.match.params.slug) {
-      serviceName = "editArticle";
+      serviceName = editArticle;
     }
     const slug = this.props.match.params.slug;
     const token = this.props.token;
 
-    this.DataService[serviceName]({ article }, token, slug).then((item) => {
+    serviceName({ article }, token, slug).then((item) => {
       this.setState({
         status: item.status,
         data: item.data,
@@ -78,7 +83,13 @@ class NewArticle extends Component {
   };
 
   render() {
-    const { data, status, title, desc, body } = this.state;
+    const { data, status, title, desc, body, error } = this.state;
+    if (error) {
+      return <Redirect to="/login" />;
+    }
+    if (!this.props.token) {
+      return <Redirect to="/login" />;
+    }
     if (status === 200) {
       return <Redirect to={`/article/${data.article.slug}`} />;
     }

@@ -1,13 +1,11 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
-import ServerError from "../server-error-component";
-import DataService from "../../services/data-service";
+import ServerError from "../../shared/server-error-component";
+import { signUp } from "../../../services/auth-service";
 import "./sign-up.css";
 
 export default class SignUp extends Component {
-  DataService = new DataService();
-
   state = {
     email: null,
     password: null,
@@ -38,7 +36,7 @@ export default class SignUp extends Component {
       password: this.state.password,
       username: this.state.username,
     };
-    this.DataService.signUp({ user }).then((item) => {
+    signUp({ user }).then((item) => {
       this.setState({
         status: item.status,
         data: item.data,

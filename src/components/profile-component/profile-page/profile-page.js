@@ -1,25 +1,25 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { withRouter } from "react-router-dom";
-import { withService } from "../../../hocs/withService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
-import ProfileFeed from "../../profile-feed";
-import ArticleList from "../../article-list";
+import ProfileFeed from "../profile-feed";
+import ArticleList from "../../shared/article-list";
 import FollowProfile from "../../follow-profile";
+import {
+  getAuthorArticles,
+  getFavouritedArticles,
+} from "../../../services/article-service";
+import { getProfile } from "../../../services/profile-service";
 
-import Spinner from "../../spinner";
+import Spinner from "../../shared/spinner";
 
 import "./profile-page.css";
 
-const ProfilePage = ({ match, dataService, token, username }) => {
-  const { getProfile, getAuthorArticles, getFavouritedArticles } = dataService;
+const ProfilePage = ({ match, token, username }) => {
   return (
     <ItemDetails
       author={match.params.author}
-      getProfile={getProfile}
-      getAuthorArticles={getAuthorArticles}
-      getFavouritedArticles={getFavouritedArticles}
       token={token}
       username={username}
     />
@@ -64,8 +64,7 @@ class ItemDetails extends Component {
     if (!author) {
       return;
     }
-    this.props
-      .getProfile(author, token)
+    getProfile(author, token)
       .then((profile) => {
         this.setState({
           authorData: profile,
@@ -85,12 +84,12 @@ class ItemDetails extends Component {
 
     let serviceName;
     if (this.state.typeFeed === "myPosts") {
-      serviceName = "getAuthorArticles";
+      serviceName = getAuthorArticles;
     } else if (this.state.typeFeed === "favouritedPosts") {
-      serviceName = "getFavouritedArticles";
+      serviceName = getFavouritedArticles;
     }
 
-    this.props[serviceName](payLoad)
+    serviceName(payLoad)
       .then((data) => {
         this.setState({
           articles: data.articles,
@@ -167,7 +166,7 @@ class ItemDetails extends Component {
             <div className="container">
               <div className="row">
                 <div className="col-xs-12 col-md-10 offset-md-1">
-                  <img className="user-img" src={authorData.image} />
+                  <img className="user-img" src={authorData.image} alt="" />
                   <h4>{authorData.username}</h4>
                   <p>{authorData.bio}</p>
                   <div>{profileButton}</div>
@@ -192,9 +191,16 @@ class ItemDetails extends Component {
       </React.Fragment>
     );
 
-    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
+    const spinner =
+      loadingPage && !errorPage ? (
+        <div className="row justify-content-center">
+          <Spinner />
+        </div>
+      ) : null;
     const content = !loadingPage && !errorPage ? Content : null;
-    const error = errorPage ? <div>Error</div> : null;
+    const error = errorPage ? (
+      <div className="row justify-content-center">Error</div>
+    ) : null;
 
     return (
       <React.Fragment>
@@ -206,6 +212,6 @@ class ItemDetails extends Component {
   }
 }
 
-const ProfileDetails = withService(withRouter(ProfilePage));
+const ProfileDetails = withRouter(ProfilePage);
 
 export { ProfileDetails };

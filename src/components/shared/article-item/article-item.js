@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 import "./article-item.css";
-import FavouriteLike from "../favourite-like";
+import FavouriteLike from "../../favourite-like";
 
 export default class ArticleItem extends Component {
   render() {
@@ -21,7 +21,7 @@ export default class ArticleItem extends Component {
         <div>
           <div className="article-meta">
             <Link to={`/profile/${data.author}`}>
-              <img src={data.image} />
+              <img src={data.image} alt="" />
             </Link>
             <div className="info">
               <Link to={`/profile/${data.author}`} className="author">
@@ -43,7 +43,7 @@ export default class ArticleItem extends Component {
         <Link to={`/article/${data.slug}`} className="preview-link">
           <h1>{data.title}</h1>
           <p>{data.body}</p>
-          <span>Read more...</span>
+          <div>Read more...</div>
           <ul className="tag-list">{elements}</ul>
         </Link>
       </div>

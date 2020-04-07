@@ -1,15 +1,17 @@
 import React, { Component } from "react";
 
 import Banner from "../banner";
-import Row from "../row";
+import Row from "../../shared/row";
 import FeedHeader from "../feed-header";
 import TagList from "../tag-list";
-import DataService from "../../services/data-service";
-import ArticleList from "../article-list";
+import ArticleList from "../../shared/article-list";
+import {
+  getAllArticles,
+  getYourArticles,
+  getArticlesWithTag,
+} from "../../../services/article-service";
 
 export default class ContainerPage extends Component {
-  DataService = new DataService();
-
   state = {
     articles: [],
     articlesCount: null,
@@ -51,15 +53,15 @@ export default class ContainerPage extends Component {
 
     let serviceName;
     if (this.state.typeFeed === "globalFeed") {
-      serviceName = "getAllArticles";
+      serviceName = getAllArticles;
     } else if (this.state.typeFeed === "yourFeed") {
-      serviceName = "getYourArticles";
+      serviceName = getYourArticles;
     } else if (this.state.typeFeed === "tagFeed") {
-      serviceName = "getArticlesWithTag";
+      serviceName = getArticlesWithTag;
       payLoad.tag = this.state.tag;
     }
 
-    this.DataService[serviceName](payLoad)
+    serviceName(payLoad)
       .then((data) => {
         this.setState({
           articles: data.articles,
@@ -118,6 +120,7 @@ export default class ContainerPage extends Component {
           onClickHandler={this.clickHandler}
           token={token}
         />
+
         <ArticleList
           data={articles}
           loading={loading}

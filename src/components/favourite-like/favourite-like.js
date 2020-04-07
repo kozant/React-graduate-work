@@ -4,15 +4,13 @@ import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 import { Redirect } from "react-router";
 
-import DataService from "../../services/data-service";
+import { like, unlike } from "../../services/button-service";
 
 export default class FavouriteLike extends Component {
-  DataService = new DataService();
-
   state = {
-    loggedIn: null,
     activeBtn: "",
     likeCount: null,
+    favorited: null,
   };
 
   componentDidMount() {
@@ -21,60 +19,59 @@ export default class FavouriteLike extends Component {
     this.setState({ likeCount: favoritesCount });
 
     if (favorited) {
-      this.setState({ activeBtn: "active" });
+      this.setState({ favorited: true, activeBtn: "active" });
     } else {
-      this.setState({ activeBtn: "" });
+      this.setState({ favorited: false, activeBtn: "" });
     }
   }
 
   postLike = (slug, token) => {
-    this.DataService.Like(slug, token, "POST").then((item) => {
-      if (item === 200) {
-        this.setState((prevState) => {
-          const nextState = prevState.likeCount + 1;
-          return {
-            activeBtn: "active",
-            likeCount: nextState,
-          };
-        });
-      }
-    });
+    like(slug, token).then(
+      this.setState((prevState) => {
+        const nextState = prevState.likeCount + 1;
+        return {
+          activeBtn: "active",
+          likeCount: nextState,
+        };
+      })
+    );
   };
 
   deleteLike = (slug, token) => {
-    this.DataService.Like(slug, token, "DELETE").then((item) => {
-      if (item === 200) {
-        this.setState((prevState) => {
-          const nextState = prevState.likeCount - 1;
-          return {
-            activeBtn: "",
-            likeCount: nextState,
-          };
-        });
-      }
-    });
+    unlike(slug, token).then(
+      this.setState((prevState) => {
+        const nextState = prevState.likeCount - 1;
+        return {
+          activeBtn: "",
+          likeCount: nextState,
+        };
+      })
+    );
   };
 
-  like = (slug, token, activeBtn) => {
-    if (activeBtn === "active") {
+  like = (slug, token) => {
+    const { favorited } = this.state;
+    if (favorited) {
       this.deleteLike(slug, token);
     }
 
-    if (activeBtn === "") {
+    if (!favorited) {
       this.postLike(slug, token);
-    }
-
-    if (!token) {
-      this.setState({ loggedIn: <Redirect to="/login" /> });
     }
   };
 
   render() {
+    const { slug, token, page } = this.props;
+    const { activeBtn, likeCount } = this.state;
+
+    // if (!token) {
+    //   return <Redirect to="/login" />;
+    // }
+
     let text = null,
       left = null,
       right = null;
-    const { slug, token, page } = this.props;
-    const { activeBtn, likeCount, loggedIn } = this.state;
+
     if (page) {
       text = "Favourite Article ";
       left = "(";
@@ -83,9 +80,8 @@ export default class FavouriteLike extends Component {
     return (
       <button
         className={`btn btn-sm btn-outline-primary ${activeBtn}`}
-        onClick={() => this.like(slug, token, activeBtn)}
+        onClick={() => this.like(slug, token)}
       >
-        {loggedIn}
         <FontAwesomeIcon icon={faHeart} /> {text}
         {left}
         {likeCount}

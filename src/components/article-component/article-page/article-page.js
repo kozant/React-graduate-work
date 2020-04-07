@@ -1,30 +1,23 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { withService } from "../../../hocs/withService";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
+import { getArticle, deleteArticle } from "../../../services/article-service";
+import { getProfile } from "../../../services/profile-service";
 import FollowProfile from "../../follow-profile";
 import FavouriteLike from "../../favourite-like";
 
-import Spinner from "../../spinner";
+import Spinner from "../../shared/spinner";
 
 import "./article-page.css";
 
-const ArticlePage = ({ match, dataService, token, username }) => {
-  const { getArticle, getProfile, deleteArticle } = dataService;
+const ArticlePage = ({ match, token, username }) => {
   return (
-    <ItemDetails
-      slug={match.params.slug}
-      getArticle={getArticle}
-      getProfile={getProfile}
-      deleteArticle={deleteArticle}
-      token={token}
-      username={username}
-    />
+    <ItemDetails slug={match.params.slug} token={token} username={username} />
   );
 };
 
@@ -32,6 +25,7 @@ class ItemDetails extends Component {
   state = {
     article: [],
     existArticle: null,
+    error: false,
     loading: true,
     profile: [],
   };
@@ -51,23 +45,23 @@ class ItemDetails extends Component {
     if (!slug) {
       return;
     }
-    this.props.getArticle(slug).then((article) => {
-      this.props.getProfile(article.author, token).then((profile) => {
-        this.setState({ profile: profile, article: article, loading: false });
-      });
-    });
+    getArticle(slug)
+      .then((article) => {
+        getProfile(article.author, token).then((profile) => {
+          this.setState({ profile: profile, article: article, loading: false });
+        });
+      })
+      .catch((e) => this.setState({ error: true }));
   };
 
   deleteArticle = (slug, token, author) => {
-    this.props.deleteArticle(slug, token).then((status) => {
-      if (status === 200) {
-        this.setState({ existArticle: <Redirect to={`/profile/${author}`} /> });
-      }
-    });
+    deleteArticle(slug, token).then(
+      this.setState({ existArticle: <Redirect to={`/profile/${author}`} /> })
+    );
   };
 
   render() {
-    const { article, loading, profile, existArticle } = this.state;
+    const { article, loading, error, profile, existArticle } = this.state;
     const { slug, token, username } = this.props;
 
     const elements =
@@ -125,7 +119,7 @@ class ItemDetails extends Component {
             <div>
               <div className="article-meta">
                 <Link to={`/profile/${article.author}`}>
-                  <img src={article.image} />
+                  <img src={article.image} alt="" />
                 </Link>
                 <div className="info">
                   <Link to={`/profile/${article.author}`} className="author">
@@ -152,18 +146,28 @@ class ItemDetails extends Component {
       </div>
     );
 
-    const spinner = loading ? <Spinner /> : null;
-    const content = !loading ? Content : null;
+    const Error = (
+      <div className="row justify-content-center">Page not found</div>
+    );
 
+    const spinner =
+      loading && !error ? (
+        <div className="row justify-content-center">
+          <Spinner />
+        </div>
+      ) : null;
+    const content = !loading && !error ? Content : null;
+    const err = error ? Error : null;
     return (
       <React.Fragment>
         {spinner}
         {content}
+        {err}
       </React.Fragment>
     );
   }
 }
 
-const ArticleDetails = withService(withRouter(ArticlePage));
+const ArticleDetails = withRouter(ArticlePage);
 
 export { ArticleDetails };

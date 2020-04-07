@@ -34,7 +34,12 @@ export default class ArticleList extends Component {
       indexPagination,
     } = this.props;
 
-    const spinner = loading && !error ? <Spinner /> : null;
+    const spinner =
+      loading && !error ? (
+        <div className="row justify-content-center">
+          <Spinner />
+        </div>
+      ) : null;
     const elements =
       !loading && !error && data.length !== 0
         ? data.map((item) => {

@@ -3,11 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Redirect } from "react-router";
 
-import DataService from "../../services/data-service";
+import { follow, unfollow } from "../../services/button-service";
 
 export default class FollowProfile extends Component {
-  DataService = new DataService();
-
   state = {
     loggedIn: null,
     author: null,
@@ -24,18 +22,14 @@ export default class FollowProfile extends Component {
   }
 
   postFollow = (author, token) => {
-    this.DataService.Follow(author, token, "POST").then((item) => {
-      if (item === 200) {
-        this.setState({ text: "Un" });
-      }
+    follow(author, token).then((item) => {
+      this.setState({ text: "Un" });
     });
   };
 
   deleteFollow = (author, token) => {
-    this.DataService.Follow(author, token, "DELETE").then((item) => {
-      if (item === 200) {
-        this.setState({ text: "" });
-      }
+    unfollow(author, token).then((item) => {
+      this.setState({ text: "" });
     });
   };
 

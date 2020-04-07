@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import DataService from "../../services/data-service";
+import { getAllPopularTags } from "../../../services/article-service";
 
 import "./tag-list.css";
 
@@ -21,12 +21,10 @@ const Error = () => {
 };
 
 export default class TagList extends Component {
-  DataService = new DataService();
-
   state = {
     popularTags: [],
     loading: true,
-    error: false
+    error: false,
   };
 
   componentDidMount() {
@@ -34,14 +32,14 @@ export default class TagList extends Component {
   }
 
   loadTags = () => {
-    this.DataService.getAllPopularTags()
-      .then(data => {
+    getAllPopularTags()
+      .then((data) => {
         this.setState({
           popularTags: data,
-          loading: false
+          loading: false,
         });
       })
-      .catch(e => this.setState({ error: true }));
+      .catch((e) => this.setState({ error: true }));
   };
 
   render() {
@@ -50,15 +48,15 @@ export default class TagList extends Component {
 
     const spinner = loading && !error ? <Loading /> : null;
     const err = error ? <Error /> : null;
-    const elements = popularTags.map(item => {
+    const elements = popularTags.map((item) => {
       return (
-        <input
+        <button
           key={item}
-          type="button"
           className="tag-default tag-pill"
           onClick={() => onClickHandler("tagFeed", item)}
-          value={item}
-        />
+        >
+          {item}
+        </button>
       );
     });
 
