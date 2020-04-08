@@ -16,36 +16,17 @@ class NewArticle extends Component {
     desc: "",
     body: "",
     tags: [],
-    error: false,
+    errorGetArticle: false,
+    errorPutArticle: false,
     status: null,
     data: {},
   };
 
   componentDidMount() {
-    if (this.props.match.params.slug) {
+    if (this.props.match.params.slug && this.props.token) {
       this.getArticleData(this.props.match.params.slug);
     }
   }
-
-  onRecordTitle = (e) => {
-    const value = e.target.value;
-    this.setState({ title: value });
-  };
-
-  onRecordDesc = (e) => {
-    const value = e.target.value;
-    this.setState({ desc: value });
-  };
-
-  onRecordBody = (e) => {
-    const value = e.target.value;
-    this.setState({ body: value });
-  };
-
-  onRecordTags = (e) => {
-    const value = e.target.value;
-    this.setState({ tags: value });
-  };
 
   getArticleData = (slug) => {
     getArticle(slug)
@@ -54,9 +35,10 @@ class NewArticle extends Component {
           title: article.title,
           desc: article.description,
           body: article.body,
+          tags: article.tagList,
         });
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => this.setState({ errorGetArticle: true }));
   };
 
   sendData = () => {
@@ -64,7 +46,7 @@ class NewArticle extends Component {
       title: this.state.title,
       description: this.state.desc,
       body: this.state.body,
-      tags: this.state.tags,
+      tagList: this.state.tags,
     };
 
     let serviceName = postArticle;
@@ -74,18 +56,38 @@ class NewArticle extends Component {
     const slug = this.props.match.params.slug;
     const token = this.props.token;
 
-    serviceName({ article }, token, slug).then((item) => {
-      this.setState({
-        status: item.status,
-        data: item.data,
-      });
-    });
+    serviceName({ article }, token, slug)
+      .then((item) => {
+        this.setState({
+          status: item.status,
+          data: item.data,
+        });
+      })
+      .catch((e) => this.setState({ errorPutArticle: true }));
   };
 
   render() {
-    const { data, status, title, desc, body, error } = this.state;
-    if (error) {
-      return <Redirect to="/login" />;
+    const {
+      data,
+      status,
+      title,
+      desc,
+      body,
+      tags,
+      errorGetArticle,
+      errorPutArticle,
+    } = this.state;
+    if (errorGetArticle) {
+      return (
+        <div className=" row justify-content-center">Article not Found</div>
+      );
+    }
+    if (errorPutArticle) {
+      return (
+        <div className=" row justify-content-center">
+          You can't change another article
+        </div>
+      );
     }
     if (!this.props.token) {
       return <Redirect to="/login" />;
@@ -114,7 +116,7 @@ class NewArticle extends Component {
                       formcontrolname="title"
                       placeholder="Article Title"
                       type="text"
-                      onChange={this.onRecordTitle}
+                      onChange={(e) => this.setState({ title: e.target.value })}
                       value={title}
                     />
                   </fieldset>
@@ -124,7 +126,7 @@ class NewArticle extends Component {
                       formcontrolname="description"
                       placeholder="What's this article about?"
                       type="text"
-                      onChange={this.onRecordDesc}
+                      onChange={(e) => this.setState({ desc: e.target.value })}
                       value={desc}
                     />
                   </fieldset>
@@ -134,7 +136,7 @@ class NewArticle extends Component {
                       formcontrolname="body"
                       placeholder="Write your article (in markdown)"
                       rows="8"
-                      onChange={this.onRecordBody}
+                      onChange={(e) => this.setState({ body: e.target.value })}
                       value={body}
                     ></textarea>
                   </fieldset>
@@ -143,7 +145,10 @@ class NewArticle extends Component {
                       className="form-control ng-untouched ng-pristine ng-valid"
                       placeholder="Enter tags"
                       type="text"
-                      onChange={this.onRecordTags}
+                      onChange={(e) =>
+                        this.setState({ tags: e.target.value.split(" ") })
+                      }
+                      value={tags}
                     />
                     <div className="tag-list"></div>
                   </fieldset>

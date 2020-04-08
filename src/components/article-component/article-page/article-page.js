@@ -8,8 +8,9 @@ import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 import { getArticle, deleteArticle } from "../../../services/article-service";
 import { getProfile } from "../../../services/profile-service";
-import FollowProfile from "../../follow-profile";
-import FavouriteLike from "../../favourite-like";
+import ErrorComponent from "../../shared/error-component";
+import FollowProfile from "../../profile-component/follow-profile";
+import FavouriteLike from "../favourite-like";
 
 import Spinner from "../../shared/spinner";
 
@@ -24,9 +25,9 @@ const ArticlePage = ({ match, token, username }) => {
 class ItemDetails extends Component {
   state = {
     article: [],
-    existArticle: null,
-    error: false,
-    loading: true,
+    articleDeleted: false,
+    errorPage: false,
+    loadingPage: true,
     profile: [],
   };
 
@@ -48,21 +49,33 @@ class ItemDetails extends Component {
     getArticle(slug)
       .then((article) => {
         getProfile(article.author, token).then((profile) => {
-          this.setState({ profile: profile, article: article, loading: false });
+          this.setState({
+            profile: profile,
+            article: article,
+            loadingPage: false,
+          });
         });
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => this.setState({ errorPage: true }));
   };
 
   deleteArticle = (slug, token, author) => {
-    deleteArticle(slug, token).then(
-      this.setState({ existArticle: <Redirect to={`/profile/${author}`} /> })
-    );
+    deleteArticle(slug, token).then(this.setState({ articleDeleted: true }));
   };
 
   render() {
-    const { article, loading, error, profile, existArticle } = this.state;
+    const {
+      article,
+      loadingPage,
+      errorPage,
+      profile,
+      articleDeleted,
+    } = this.state;
     const { slug, token, username } = this.props;
+
+    if (articleDeleted) {
+      return <Redirect to={`/profile/${username}`} />;
+    }
 
     const elements =
       article.tagList &&
@@ -83,10 +96,10 @@ class ItemDetails extends Component {
         </Link>
         <button
           className="btn btn-sm btn-outline-danger"
-          onClick={() => this.deleteArticle(slug, token, username)}
+          onClick={() => this.deleteArticle(slug, token)}
         >
           <FontAwesomeIcon icon={faTrashAlt} />
-          {existArticle} Delete Article
+          Delete Article
         </button>
       </span>
     );
@@ -146,23 +159,16 @@ class ItemDetails extends Component {
       </div>
     );
 
-    const Error = (
-      <div className="row justify-content-center">Page not found</div>
-    );
+    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
 
-    const spinner =
-      loading && !error ? (
-        <div className="row justify-content-center">
-          <Spinner />
-        </div>
-      ) : null;
-    const content = !loading && !error ? Content : null;
-    const err = error ? Error : null;
+    const content = !loadingPage && !errorPage ? Content : null;
+
+    const error = errorPage ? <ErrorComponent /> : null;
     return (
       <React.Fragment>
         {spinner}
         {content}
-        {err}
+        {error}
       </React.Fragment>
     );
   }

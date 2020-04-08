@@ -10,6 +10,7 @@ import {
   getYourArticles,
   getArticlesWithTag,
 } from "../../../services/article-service";
+import { Redirect } from "react-router";
 
 export default class ContainerPage extends Component {
   state = {
@@ -18,7 +19,6 @@ export default class ContainerPage extends Component {
     indexPagination: 1,
 
     limit: 10,
-    offset: 0,
 
     tag: null,
     loading: true,
@@ -44,10 +44,10 @@ export default class ContainerPage extends Component {
     }
   }
 
-  loadArticles = () => {
+  loadArticles = (offset = 0) => {
     const payLoad = {
       limit: this.state.limit,
-      offset: this.state.offset,
+      offset,
       token: this.props.token,
     };
 
@@ -80,20 +80,20 @@ export default class ContainerPage extends Component {
         loading: true,
         error: false,
         indexPagination: 1,
+        offset: 0,
       };
     });
   };
 
   PaginationClick = (page) => {
     page = page + 1;
-
+    const { limit } = this.state;
+    const offset = page * limit - limit;
     this.setState({
       indexPagination: page,
-      offset: page * 10 - 10,
       loading: true,
     });
-
-    this.loadArticles();
+    this.loadArticles(offset);
   };
 
   render() {
@@ -111,6 +111,10 @@ export default class ContainerPage extends Component {
     } = this.state;
 
     const { token } = this.props;
+
+    if (typeFeed === "yourFeed" && !token) {
+      return <Redirect to="/login" />;
+    }
 
     const main = (
       <div>

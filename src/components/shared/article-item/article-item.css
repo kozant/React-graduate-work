@@ -73,6 +73,7 @@
 }
 
 .article-preview .preview-link ul {
+  padding-left: 0;
   margin-top: 1rem;
 }
 

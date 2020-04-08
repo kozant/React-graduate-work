@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
-import ServerError from "../../shared/server-error-component";
 import { editProfile } from "../../../services/profile-service";
+import ErrorComponent from "../../shared/error-component";
+import ServerError from "../../shared/server-error-component";
+
 import "./profile-settings.css";
 
 export default class ProfileSettings extends Component {
@@ -12,34 +14,9 @@ export default class ProfileSettings extends Component {
     username: "",
     bio: null,
     image: null,
-
+    error: false,
     status: null,
     data: {},
-  };
-
-  onRecordBio = (e) => {
-    const value = e.target.value;
-    this.setState({ bio: value });
-  };
-
-  onRecordEmail = (e) => {
-    const value = e.target.value;
-    this.setState({ email: value });
-  };
-
-  onRecordPassword = (e) => {
-    const value = e.target.value;
-    this.setState({ password: value });
-  };
-
-  onRecordUsername = (e) => {
-    const value = e.target.value;
-    this.setState({ username: value });
-  };
-
-  onRecordImage = (e) => {
-    const value = e.target.value;
-    this.setState({ image: value });
   };
 
   changeData = () => {
@@ -51,12 +28,14 @@ export default class ProfileSettings extends Component {
       image: this.state.image,
     };
     const token = this.props.token;
-    editProfile({ user }, token).then((profile) => {
-      this.setState({
-        status: profile.status,
-        data: profile.data,
-      });
-    });
+    editProfile({ user }, token)
+      .then((profile) => {
+        this.setState({
+          status: profile.status,
+          data: profile.data,
+        });
+      })
+      .catch((e) => this.setState({ error: true }));
   };
 
   logout = () => {
@@ -72,7 +51,8 @@ export default class ProfileSettings extends Component {
     });
   }
   render() {
-    const { data, status, email, username } = this.state;
+    const { data, status, email, username, error } = this.state;
+    const Error = error ? <ErrorComponent /> : null;
     if (!this.props.token) {
       return <Redirect to="/login" />;
     }
@@ -80,7 +60,7 @@ export default class ProfileSettings extends Component {
       localStorage.setItem("token", data.user.token);
       localStorage.setItem("email", data.user.email);
       localStorage.setItem("username", data.user.username);
-      return <Redirect to="/" />;
+      return <Redirect to={`/profile/${username}`} />;
     }
     return (
       <div className="settings-page">
@@ -90,6 +70,7 @@ export default class ProfileSettings extends Component {
               <h1 className="text-xs-center">Your Settings</h1>
               <div>
                 <ServerError data={data} status={status} />
+                {Error}
               </div>
               <form
                 className="ng-untouched ng-pristine ng-valid"
@@ -104,7 +85,7 @@ export default class ProfileSettings extends Component {
                       formcontrolname="image"
                       placeholder="URL of profile picture"
                       type="text"
-                      onChange={this.onRecordImage}
+                      onChange={(e) => this.setState({ image: e.target.value })}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -125,7 +106,7 @@ export default class ProfileSettings extends Component {
                       formcontrolname="bio"
                       placeholder="Short bio about you"
                       rows="8"
-                      onChange={this.onRecordBio}
+                      onChange={(e) => this.setState({ bio: e.target.value })}
                     ></textarea>
                   </fieldset>
                   <fieldset className="form-group">
@@ -134,7 +115,7 @@ export default class ProfileSettings extends Component {
                       formcontrolname="email"
                       placeholder="Email"
                       type="email"
-                      onChange={this.onRecordEmail}
+                      onChange={(e) => this.setState({ email: e.target.value })}
                       value={email}
                     />
                   </fieldset>
@@ -144,7 +125,9 @@ export default class ProfileSettings extends Component {
                       formcontrolname="password"
                       placeholder="New Password"
                       type="password"
-                      onChange={this.onRecordPassword}
+                      onChange={(e) =>
+                        this.setState({ password: e.target.value })
+                      }
                     />
                   </fieldset>
                   <button

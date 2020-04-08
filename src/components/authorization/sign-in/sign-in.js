@@ -1,27 +1,19 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
-import ServerError from "../../shared/server-error-component";
 import { signIn } from "../../../services/auth-service";
+import ErrorComponent from "../../shared/error-component";
+import ServerError from "../../shared/server-error-component";
+
 import "./sign-in.css";
 
 export default class SignIn extends Component {
   state = {
-    email: null,
-    password: null,
-
+    email: "",
+    password: "",
+    error: false,
     status: null,
     data: {},
-  };
-
-  onChangeEmail = (e) => {
-    const value = e.target.value;
-    this.setState({ email: value });
-  };
-
-  onChangePassword = (e) => {
-    const value = e.target.value;
-    this.setState({ password: value });
   };
 
   sendData = () => {
@@ -30,28 +22,28 @@ export default class SignIn extends Component {
       password: this.state.password,
       username: this.state.username,
     };
-    signIn({ user }).then((item) => {
-      this.setState({
-        status: item.status,
-        data: item.data,
-      });
-      if (item.status === 200) {
+    signIn({ user })
+      .then((item) => {
+        this.setState({
+          status: item.status,
+          data: item.data,
+        });
         this.props.onSetToken(
           item.data.user.token,
           item.data.user.email,
           item.data.user.username
         );
-      }
-    });
+      })
+      .catch((e) => this.setState({ error: true }));
   };
 
   render() {
     const { token } = this.props;
-
+    const { data, status, error } = this.state;
+    const Error = error ? <ErrorComponent /> : null;
     if (token) {
       return <Redirect to="/" />;
     }
-    const { data, status } = this.state;
     if (status === 200) {
       localStorage.setItem("token", data.user.token);
       localStorage.setItem("email", data.user.email);
@@ -71,6 +63,7 @@ export default class SignIn extends Component {
               </p>
               <div>
                 <ServerError data={data} status={status} />
+                {Error}
               </div>
               <form
                 className="ng-untouched ng-pristine ng-invalid"
@@ -85,7 +78,7 @@ export default class SignIn extends Component {
                       formcontrolname="email"
                       placeholder="Email"
                       type="text"
-                      onChange={this.onChangeEmail}
+                      onChange={(e) => this.setState({ email: e.target.value })}
                     />
                   </fieldset>
                   <fieldset className="form-group">
@@ -94,7 +87,9 @@ export default class SignIn extends Component {
                       formcontrolname="password"
                       placeholder="Password"
                       type="password"
-                      onChange={this.onChangePassword}
+                      onChange={(e) =>
+                        this.setState({ password: e.target.value })
+                      }
                     />
                   </fieldset>
                   <button

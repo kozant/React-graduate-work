@@ -26,39 +26,36 @@ class App extends Component {
   };
 
   render() {
+    const { token, username, email } = this.state;
     return (
       <div className="todo-app">
         <Router>
-          <AppHeader token={this.state.token} />
+          <AppHeader token={token} username={username} />
 
           <Switch>
             <Route
               path="/"
-              render={() => <ContainerPage token={this.state.token} />}
+              render={() => <ContainerPage token={token} />}
               exact
             />
             <Route
               path="/login"
-              render={() => (
-                <SignIn onSetToken={this.setToken} token={this.state.token} />
-              )}
+              render={() => <SignIn onSetToken={this.setToken} token={token} />}
               exact
             />
             <Route
               path="/register"
-              render={() => (
-                <SignUp onSetToken={this.setToken} token={this.state.token} />
-              )}
+              render={() => <SignUp onSetToken={this.setToken} token={token} />}
               exact
             />
             <Route
               path="/editor"
-              render={() => <RecordArticle token={this.state.token} />}
+              render={() => <RecordArticle token={token} />}
               exact
             />
             <Route
               path="/editor/:slug"
-              render={() => <RecordArticle token={this.state.token} />}
+              render={() => <RecordArticle token={token} />}
               exact
             />
             <Route
@@ -66,31 +63,21 @@ class App extends Component {
               render={() => (
                 <ProfileSettings
                   onSetToken={this.setToken}
-                  token={this.state.token}
-                  email={this.state.email}
-                  username={this.state.username}
+                  token={token}
+                  email={email}
+                  username={username}
                 />
               )}
               exact
             />
             <Route
               path="/article/:slug"
-              render={() => (
-                <ArticlePage
-                  token={this.state.token}
-                  username={this.state.username}
-                />
-              )}
+              render={() => <ArticlePage token={token} username={username} />}
               exact
             />
             <Route
               path="/profile/:author"
-              render={() => (
-                <ProfilePage
-                  token={this.state.token}
-                  username={this.state.username}
-                />
-              )}
+              render={() => <ProfilePage token={token} username={username} />}
               exact
             />
             <Route render={() => <h1>Page not found!</h1>} />
@@ -105,9 +92,3 @@ class App extends Component {
 export default App;
 
 // контекст с токенами
-// фоллоу профайл поменять и лайки
-// поменять тернарные операции на if
-
-//переход на другие страницы(ошибки)
-//willUnmount
-//redirect follow, like

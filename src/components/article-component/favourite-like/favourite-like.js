@@ -4,13 +4,14 @@ import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 import { Redirect } from "react-router";
 
-import { like, unlike } from "../../services/button-service";
+import { like, unlike } from "../../../services/article-service";
 
 export default class FavouriteLike extends Component {
   state = {
     activeBtn: "",
     likeCount: null,
     favorited: null,
+    unLoggedIn: false,
   };
 
   componentDidMount() {
@@ -26,30 +27,36 @@ export default class FavouriteLike extends Component {
   }
 
   postLike = (slug, token) => {
-    like(slug, token).then(
-      this.setState((prevState) => {
-        const nextState = prevState.likeCount + 1;
-        return {
-          activeBtn: "active",
-          likeCount: nextState,
-        };
-      })
-    );
+    like(slug, token)
+      .then(
+        this.setState((prevState) => {
+          const nextState = prevState.likeCount + 1;
+          return {
+            activeBtn: "active",
+            likeCount: nextState,
+            favorited: true,
+          };
+        })
+      )
+      .catch((e) => this.setState({ unLoggedIn: true }));
   };
 
   deleteLike = (slug, token) => {
-    unlike(slug, token).then(
-      this.setState((prevState) => {
-        const nextState = prevState.likeCount - 1;
-        return {
-          activeBtn: "",
-          likeCount: nextState,
-        };
-      })
-    );
+    unlike(slug, token)
+      .then(
+        this.setState((prevState) => {
+          const nextState = prevState.likeCount - 1;
+          return {
+            activeBtn: "",
+            likeCount: nextState,
+            favorited: false,
+          };
+        })
+      )
+      .catch((e) => this.setState({ unLoggedIn: true }));
   };
 
-  like = (slug, token) => {
+  likeElement = (slug, token) => {
     const { favorited } = this.state;
     if (favorited) {
       this.deleteLike(slug, token);
@@ -62,11 +69,11 @@ export default class FavouriteLike extends Component {
 
   render() {
     const { slug, token, page } = this.props;
-    const { activeBtn, likeCount } = this.state;
+    const { activeBtn, likeCount, unLoggedIn } = this.state;
 
-    // if (!token) {
-    //   return <Redirect to="/login" />;
-    // }
+    if (unLoggedIn) {
+      return <Redirect to="/login" />;
+    }
 
     let text = null,
       left = null,
@@ -80,7 +87,7 @@ export default class FavouriteLike extends Component {
     return (
       <button
         className={`btn btn-sm btn-outline-primary ${activeBtn}`}
-        onClick={() => this.like(slug, token)}
+        onClick={() => this.likeElement(slug, token)}
       >
         <FontAwesomeIcon icon={faHeart} /> {text}
         {left}

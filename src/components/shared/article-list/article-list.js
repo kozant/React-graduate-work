@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React from "react";
 import "./article-list.css";
 
 import ArticleItem from "../article-item";
 import Spinner from "../spinner";
 import Pagination from "../pagination";
+import ErrorComponent from "../../shared/error-component";
 
 const NoData = () => {
   return (
@@ -13,59 +14,47 @@ const NoData = () => {
   );
 };
 
-const Error = () => {
+const ArticleList = ({
+  data,
+  loading,
+  articlesCount,
+  error,
+  token,
+  limit,
+  onPaginationClick,
+  indexPagination,
+}) => {
+  const spinner = loading && !error ? <Spinner /> : null;
+
+  const elements =
+    !loading && !error && data.length !== 0
+      ? data.map((item) => {
+          return <ArticleItem key={item.slug} data={item} token={token} />;
+        })
+      : null;
+
+  const nodata = !loading && !error && data.length === 0 ? <NoData /> : null;
+
+  const pagination =
+    !loading && !error ? (
+      <Pagination
+        articlesCount={articlesCount}
+        limit={limit}
+        indexPagination={indexPagination}
+        onPaginationClick={onPaginationClick}
+      />
+    ) : null;
+
+  const err = error ? <ErrorComponent /> : null;
+
   return (
-    <React.Fragment>
-      <div>Error</div>
-    </React.Fragment>
+    <div>
+      {spinner}
+      {elements}
+      {nodata}
+      {pagination}
+      {err}
+    </div>
   );
 };
-
-export default class ArticleList extends Component {
-  render() {
-    const {
-      data,
-      loading,
-      articlesCount,
-      error,
-      token,
-      limit,
-      onPaginationClick,
-      indexPagination,
-    } = this.props;
-
-    const spinner =
-      loading && !error ? (
-        <div className="row justify-content-center">
-          <Spinner />
-        </div>
-      ) : null;
-    const elements =
-      !loading && !error && data.length !== 0
-        ? data.map((item) => {
-            return <ArticleItem key={item.slug} data={item} token={token} />;
-          })
-        : null;
-    const nodata = !loading && !error && data.length === 0 ? <NoData /> : null;
-    const pagination =
-      !loading && !error ? (
-        <Pagination
-          articlesCount={articlesCount}
-          limit={limit}
-          indexPagination={indexPagination}
-          onPaginationClick={onPaginationClick}
-        />
-      ) : null;
-    const err = error ? <Error /> : null;
-
-    return (
-      <div>
-        {spinner}
-        {elements}
-        {nodata}
-        {pagination}
-        {err}
-      </div>
-    );
-  }
-}
+export default ArticleList;

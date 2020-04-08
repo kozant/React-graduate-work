@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import ProfileFeed from "../profile-feed";
 import ArticleList from "../../shared/article-list";
-import FollowProfile from "../../follow-profile";
+import FollowProfile from "../follow-profile";
 import {
   getAuthorArticles,
   getFavouritedArticles,
@@ -13,6 +13,7 @@ import {
 import { getProfile } from "../../../services/profile-service";
 
 import Spinner from "../../shared/spinner";
+import ErrorComponent from "../../shared/error-component";
 
 import "./profile-page.css";
 
@@ -33,7 +34,6 @@ class ItemDetails extends Component {
     indexPagination: 1,
 
     limit: 10,
-    offset: 0,
 
     authorData: [],
     loadingPage: true,
@@ -74,11 +74,11 @@ class ItemDetails extends Component {
       .catch((e) => this.setState({ errorPage: true }));
   }
 
-  loadArticles = () => {
+  loadArticles = (offset = 0) => {
     const payLoad = {
       author: this.props.author,
       limit: this.state.limit,
-      offset: this.state.offset,
+      offset,
       token: this.props.token,
     };
 
@@ -113,14 +113,13 @@ class ItemDetails extends Component {
 
   PaginationClick = (page) => {
     page = page + 1;
-
+    const { limit } = this.state;
+    const offset = page * limit - limit;
     this.setState({
       indexPagination: page,
-      offset: page * 10 - 10,
       loadingArticles: true,
     });
-
-    this.loadArticles();
+    this.loadArticles(offset);
   };
 
   render() {
@@ -142,6 +141,7 @@ class ItemDetails extends Component {
     } = this.state;
 
     const { author, token, username } = this.props;
+
     const yourProfile = (
       <Link to="/settings" className="ion-gear-a">
         <button className="btn btn-sm btn-outline-secondary action-btn">
@@ -149,15 +149,19 @@ class ItemDetails extends Component {
         </button>
       </Link>
     );
+
     const anotherProfile = (
       <FollowProfile
         author={authorData.username}
         following={authorData.following}
-        token={this.props.token}
+        token={token}
       />
     );
 
-    const profileButton = author === username ? yourProfile : anotherProfile;
+    const profileButton =
+      author === username && !loadingPage && !errorPage
+        ? yourProfile
+        : anotherProfile;
 
     const Content = (
       <React.Fragment>
@@ -191,16 +195,9 @@ class ItemDetails extends Component {
       </React.Fragment>
     );
 
-    const spinner =
-      loadingPage && !errorPage ? (
-        <div className="row justify-content-center">
-          <Spinner />
-        </div>
-      ) : null;
+    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
     const content = !loadingPage && !errorPage ? Content : null;
-    const error = errorPage ? (
-      <div className="row justify-content-center">Error</div>
-    ) : null;
+    const error = errorPage ? <ErrorComponent /> : null;
 
     return (
       <React.Fragment>

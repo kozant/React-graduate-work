@@ -1,24 +1,9 @@
 import React, { Component } from "react";
 
+import ErrorComponent from "../../shared/error-component";
 import { getAllPopularTags } from "../../../services/article-service";
 
 import "./tag-list.css";
-
-const Loading = () => {
-  return (
-    <React.Fragment>
-      <div>Loading tags...</div>
-    </React.Fragment>
-  );
-};
-
-const Error = () => {
-  return (
-    <React.Fragment>
-      <div>Error</div>
-    </React.Fragment>
-  );
-};
 
 export default class TagList extends Component {
   state = {
@@ -46,8 +31,10 @@ export default class TagList extends Component {
     const { popularTags, loading, error } = this.state;
     const { onClickHandler } = this.props;
 
-    const spinner = loading && !error ? <Loading /> : null;
-    const err = error ? <Error /> : null;
+    const loadingTagList = <div>Loading tags...</div>;
+
+    const spinner = loading && !error ? loadingTagList : null;
+    const err = error ? <ErrorComponent /> : null;
     const elements = popularTags.map((item) => {
       return (
         <button
