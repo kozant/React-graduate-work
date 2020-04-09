@@ -4,10 +4,11 @@ import { Redirect } from "react-router";
 import { signIn } from "../../../services/auth-service";
 import ErrorComponent from "../../shared/error-component";
 import ServerError from "../../shared/server-error-component";
+import withUser from "../../../hocs";
 
 import "./sign-in.css";
 
-export default class SignIn extends Component {
+class SignIn extends Component {
   state = {
     email: "",
     password: "",
@@ -20,7 +21,6 @@ export default class SignIn extends Component {
     const user = {
       email: this.state.email,
       password: this.state.password,
-      username: this.state.username,
     };
     signIn({ user })
       .then((item) => {
@@ -28,19 +28,23 @@ export default class SignIn extends Component {
           status: item.status,
           data: item.data,
         });
-        this.props.onSetToken(
+        this.props.data.onSetToken(
           item.data.user.token,
           item.data.user.email,
           item.data.user.username
         );
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => {
+        this.setState({ error: true });
+      });
   };
 
   render() {
-    const { token } = this.props;
+    const { token } = this.props.data;
     const { data, status, error } = this.state;
-    const Error = error ? <ErrorComponent /> : null;
+    if (error) {
+      return <ErrorComponent />;
+    }
     if (token) {
       return <Redirect to="/" />;
     }
@@ -63,7 +67,6 @@ export default class SignIn extends Component {
               </p>
               <div>
                 <ServerError data={data} status={status} />
-                {Error}
               </div>
               <form
                 className="ng-untouched ng-pristine ng-invalid"
@@ -108,3 +111,5 @@ export default class SignIn extends Component {
     );
   }
 }
+
+export default withUser(SignIn);

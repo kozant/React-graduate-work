@@ -6,14 +6,6 @@ import Spinner from "../spinner";
 import Pagination from "../pagination";
 import ErrorComponent from "../../shared/error-component";
 
-const NoData = () => {
-  return (
-    <React.Fragment>
-      <div>Empty...</div>
-    </React.Fragment>
-  );
-};
-
 const ArticleList = ({
   data,
   loading,
@@ -24,7 +16,12 @@ const ArticleList = ({
   onPaginationClick,
   indexPagination,
 }) => {
-  const spinner = loading && !error ? <Spinner /> : null;
+  if (loading && !error) {
+    return <Spinner />;
+  }
+  if (error) {
+    return <ErrorComponent />;
+  }
 
   const elements =
     !loading && !error && data.length !== 0
@@ -33,7 +30,8 @@ const ArticleList = ({
         })
       : null;
 
-  const nodata = !loading && !error && data.length === 0 ? <NoData /> : null;
+  const nodata =
+    !loading && !error && data.length === 0 ? <div>Empty...</div> : null;
 
   const pagination =
     !loading && !error ? (
@@ -45,15 +43,11 @@ const ArticleList = ({
       />
     ) : null;
 
-  const err = error ? <ErrorComponent /> : null;
-
   return (
     <div>
-      {spinner}
       {elements}
       {nodata}
       {pagination}
-      {err}
     </div>
   );
 };

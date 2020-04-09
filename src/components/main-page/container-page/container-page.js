@@ -10,9 +10,10 @@ import {
   getYourArticles,
   getArticlesWithTag,
 } from "../../../services/article-service";
+import withUser from "../../../hocs";
 import { Redirect } from "react-router";
 
-export default class ContainerPage extends Component {
+class ContainerPage extends Component {
   state = {
     articles: [],
     articlesCount: null,
@@ -48,7 +49,7 @@ export default class ContainerPage extends Component {
     const payLoad = {
       limit: this.state.limit,
       offset,
-      token: this.props.token,
+      token: this.props.data.token,
     };
 
     let serviceName;
@@ -110,7 +111,7 @@ export default class ContainerPage extends Component {
       error,
     } = this.state;
 
-    const { token } = this.props;
+    const { token } = this.props.data;
 
     if (typeFeed === "yourFeed" && !token) {
       return <Redirect to="/login" />;
@@ -149,3 +150,5 @@ export default class ContainerPage extends Component {
     );
   }
 }
+
+export default withUser(ContainerPage);

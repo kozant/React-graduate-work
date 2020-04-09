@@ -56,19 +56,11 @@ export const getArticle = async (slug) => {
 };
 
 export const postArticle = async (article, token) => {
-  const res = await postRequest(`/articles/`, token, article);
-  return {
-    data: await res.json(),
-    status: res.status,
-  };
+  return await postRequest(`/articles/`, token, article);
 };
 
 export const editArticle = async (article, token, slug) => {
-  const res = await putRequest(`/articles/${slug}`, token, article);
-  return {
-    data: await res.json(),
-    status: res.status,
-  };
+  return await putRequest(`/articles/${slug}`, token, article);
 };
 
 export const deleteArticle = async (slug, token) => {

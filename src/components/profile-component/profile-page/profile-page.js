@@ -11,23 +11,13 @@ import {
   getFavouritedArticles,
 } from "../../../services/article-service";
 import { getProfile } from "../../../services/profile-service";
-
+import withUser from "../../../hocs";
 import Spinner from "../../shared/spinner";
 import ErrorComponent from "../../shared/error-component";
 
 import "./profile-page.css";
 
-const ProfilePage = ({ match, token, username }) => {
-  return (
-    <ItemDetails
-      author={match.params.author}
-      token={token}
-      username={username}
-    />
-  );
-};
-
-class ItemDetails extends Component {
+class ProfilePage extends Component {
   state = {
     articles: [],
     articlesCount: null,
@@ -51,7 +41,7 @@ class ItemDetails extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.author !== prevProps.author) {
+    if (this.props.match.params.author !== prevProps.match.params.author) {
       this.loadPage();
     }
     if (this.state.typeFeed !== prevState.typeFeed) {
@@ -60,7 +50,8 @@ class ItemDetails extends Component {
   }
 
   loadPage() {
-    const { author, token } = this.props;
+    const { author } = this.props.match.params;
+    const { token } = this.props.data;
     if (!author) {
       return;
     }
@@ -76,10 +67,10 @@ class ItemDetails extends Component {
 
   loadArticles = (offset = 0) => {
     const payLoad = {
-      author: this.props.author,
+      author: this.props.match.params.author,
       limit: this.state.limit,
       offset,
-      token: this.props.token,
+      token: this.props.data.token,
     };
 
     let serviceName;
@@ -140,7 +131,8 @@ class ItemDetails extends Component {
       authorData,
     } = this.state;
 
-    const { author, token, username } = this.props;
+    const { author } = this.props.match.params;
+    const { token, username } = this.props.data;
 
     const yourProfile = (
       <Link to="/settings" className="ion-gear-a">
@@ -164,7 +156,7 @@ class ItemDetails extends Component {
         : anotherProfile;
 
     const Content = (
-      <React.Fragment>
+      <>
         <div className="profile-page">
           <div className="user-info">
             <div className="container">
@@ -192,23 +184,21 @@ class ItemDetails extends Component {
             token={token}
           />
         </div>
-      </React.Fragment>
+      </>
     );
 
-    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
-    const content = !loadingPage && !errorPage ? Content : null;
-    const error = errorPage ? <ErrorComponent /> : null;
-
-    return (
-      <React.Fragment>
-        {spinner}
-        {content}
-        {error}
-      </React.Fragment>
-    );
+    if (loadingPage && !errorPage) {
+      return <Spinner />;
+    }
+    if (!loadingPage && !errorPage) {
+      return <>{Content}</>;
+    }
+    if (errorPage) {
+      return <ErrorComponent />;
+    }
   }
 }
 
-const ProfileDetails = withRouter(ProfilePage);
+const ProfileDetails = withUser(withRouter(ProfilePage));
 
 export { ProfileDetails };

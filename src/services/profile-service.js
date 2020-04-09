@@ -6,11 +6,7 @@ export const getProfile = async (name, token) => {
 };
 
 export const editProfile = async (user, token) => {
-  const res = await putRequest(`/user`, user, token);
-  return {
-    data: await res.json(),
-    status: res.status,
-  };
+  return await putRequest(`/user`, token, user);
 };
 
 export const follow = async (author, token) => {

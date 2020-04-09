@@ -10,6 +10,8 @@ import ProfilePage from "../profile-component/profile-page";
 import ProfileSettings from "../profile-component/profile-settings";
 import RecordArticle from "../article-component/new-article";
 
+import { DataProvider } from "../../context";
+
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import "./app.css";
@@ -27,64 +29,33 @@ class App extends Component {
 
   render() {
     const { token, username, email } = this.state;
+    const user = {
+      token: token,
+      username: username,
+      email: email,
+      onSetToken: this.setToken,
+    };
     return (
-      <div className="todo-app">
-        <Router>
-          <AppHeader token={token} username={username} />
+      <DataProvider value={user}>
+        <div className="todo-app">
+          <Router>
+            <AppHeader />
 
-          <Switch>
-            <Route
-              path="/"
-              render={() => <ContainerPage token={token} />}
-              exact
-            />
-            <Route
-              path="/login"
-              render={() => <SignIn onSetToken={this.setToken} token={token} />}
-              exact
-            />
-            <Route
-              path="/register"
-              render={() => <SignUp onSetToken={this.setToken} token={token} />}
-              exact
-            />
-            <Route
-              path="/editor"
-              render={() => <RecordArticle token={token} />}
-              exact
-            />
-            <Route
-              path="/editor/:slug"
-              render={() => <RecordArticle token={token} />}
-              exact
-            />
-            <Route
-              path="/settings"
-              render={() => (
-                <ProfileSettings
-                  onSetToken={this.setToken}
-                  token={token}
-                  email={email}
-                  username={username}
-                />
-              )}
-              exact
-            />
-            <Route
-              path="/article/:slug"
-              render={() => <ArticlePage token={token} username={username} />}
-              exact
-            />
-            <Route
-              path="/profile/:author"
-              render={() => <ProfilePage token={token} username={username} />}
-              exact
-            />
-            <Route render={() => <h1>Page not found!</h1>} />
-          </Switch>
-          <AppFooter />
-        </Router>
-      </div>
+            <Switch>
+              <Route path="/" component={ContainerPage} exact />
+              <Route path="/login" component={SignIn} exact />
+              <Route path="/register" component={SignUp} exact />
+              <Route path="/editor" component={RecordArticle} exact />
+              <Route path="/editor/:slug" component={RecordArticle} exact />
+              <Route path="/settings" component={ProfileSettings} exact />
+              <Route path="/article/:slug" component={ArticlePage} exact />
+              <Route path="/profile/:author" component={ProfilePage} exact />
+              <Route render={() => <h1>Page not found!</h1>} />
+            </Switch>
+            <AppFooter />
+          </Router>
+        </div>
+      </DataProvider>
     );
   }
 }

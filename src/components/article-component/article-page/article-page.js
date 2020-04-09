@@ -5,24 +5,17 @@ import { Redirect } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-
 import { getArticle, deleteArticle } from "../../../services/article-service";
 import { getProfile } from "../../../services/profile-service";
 import ErrorComponent from "../../shared/error-component";
 import FollowProfile from "../../profile-component/follow-profile";
 import FavouriteLike from "../favourite-like";
-
+import withUser from "../../../hocs";
 import Spinner from "../../shared/spinner";
 
 import "./article-page.css";
 
-const ArticlePage = ({ match, token, username }) => {
-  return (
-    <ItemDetails slug={match.params.slug} token={token} username={username} />
-  );
-};
-
-class ItemDetails extends Component {
+class ArticlePage extends Component {
   state = {
     article: [],
     articleDeleted: false,
@@ -36,13 +29,14 @@ class ItemDetails extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.slug !== prevProps.slug) {
+    if (this.props.match.params.slug !== prevProps.match.params.slug) {
       this.loadArticle();
     }
   }
 
   loadArticle = () => {
-    const { slug, token } = this.props;
+    const { slug } = this.props.match.params;
+    const { token } = this.props.data;
     if (!slug) {
       return;
     }
@@ -56,11 +50,15 @@ class ItemDetails extends Component {
           });
         });
       })
-      .catch((e) => this.setState({ errorPage: true }));
+      .catch((e) => {
+        this.setState({ errorPage: true });
+      });
   };
 
-  deleteArticle = (slug, token, author) => {
-    deleteArticle(slug, token).then(this.setState({ articleDeleted: true }));
+  deleteArticle = (slug, token) => {
+    deleteArticle(slug, token).then(() => {
+      this.setState({ articleDeleted: true });
+    });
   };
 
   render() {
@@ -71,7 +69,9 @@ class ItemDetails extends Component {
       profile,
       articleDeleted,
     } = this.state;
-    const { slug, token, username } = this.props;
+
+    const { slug } = this.props.match.params;
+    const { token, username } = this.props.data;
 
     if (articleDeleted) {
       return <Redirect to={`/profile/${username}`} />;
@@ -109,7 +109,7 @@ class ItemDetails extends Component {
         <FollowProfile
           author={profile.username}
           following={profile.following}
-          token={this.props.token}
+          token={token}
         />
         <FavouriteLike
           className="btn btn-sm btn-outline-primary"
@@ -159,21 +159,20 @@ class ItemDetails extends Component {
       </div>
     );
 
-    const spinner = loadingPage && !errorPage ? <Spinner /> : null;
+    if (loadingPage && !errorPage) {
+      return <Spinner />;
+    }
 
-    const content = !loadingPage && !errorPage ? Content : null;
+    if (!loadingPage && !errorPage) {
+      return <>{Content}</>;
+    }
 
-    const error = errorPage ? <ErrorComponent /> : null;
-    return (
-      <React.Fragment>
-        {spinner}
-        {content}
-        {error}
-      </React.Fragment>
-    );
+    if (errorPage) {
+      return <ErrorComponent />;
+    }
   }
 }
 
-const ArticleDetails = withRouter(ArticlePage);
+const ArticleDetails = withUser(withRouter(ArticlePage));
 
 export { ArticleDetails };

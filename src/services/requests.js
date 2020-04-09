@@ -13,7 +13,7 @@ export const getRequest = async (url, token) => {
   if (!res.ok) {
     throw new Error(`Could not fetch ${url}, received ${res.status}`);
   }
-  return res.json();
+  return await res.json();
 };
 
 export const postRequest = async (url, token, body) => {
@@ -34,7 +34,10 @@ export const postRequest = async (url, token, body) => {
   if (!res.ok) {
     throw new Error(`Could not fetch ${url}, received ${res.status}`);
   }
-  return await res;
+  return {
+    data: await res.json(),
+    status: res.status,
+  };
 };
 
 export const putRequest = async (url, token, body) => {
@@ -51,7 +54,10 @@ export const putRequest = async (url, token, body) => {
   if (!res.ok) {
     throw new Error(`Could not fetch ${url}, received ${res.status}`);
   }
-  return await res;
+  return {
+    data: await res.json(),
+    status: res.status,
+  };
 };
 
 export const deleteRequest = async (url, token) => {
@@ -67,5 +73,5 @@ export const deleteRequest = async (url, token) => {
   if (!res.ok) {
     throw new Error(`Could not fetch ${url}, received ${res.status}`);
   }
-  return res;
+  return await res.json();
 };

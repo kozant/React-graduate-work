@@ -3,10 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import "./app-header.css";
+import withUser from "../../hocs";
 
 import { Link } from "react-router-dom";
 
-const AppHeader = ({ token, username }) => {
+const AppHeader = ({ data }) => {
   const guestHeader = (
     <React.Fragment>
       <li className="nav-item">
@@ -34,14 +35,14 @@ const AppHeader = ({ token, username }) => {
         </Link>
       </li>
       <li className="nav-item">
-        <Link to={`/profile/${username}`} className="nav-link">
-          {username}
+        <Link to={`/profile/${data.username}`} className="nav-link">
+          {data.username}
         </Link>
       </li>
     </React.Fragment>
   );
 
-  const elements = token ? userHeader : guestHeader;
+  const elements = data.token ? userHeader : guestHeader;
   return (
     <nav className="navbar navbar-light app-header">
       <div className="container">
@@ -61,4 +62,5 @@ const AppHeader = ({ token, username }) => {
     </nav>
   );
 };
-export default AppHeader;
+
+export default withUser(AppHeader);

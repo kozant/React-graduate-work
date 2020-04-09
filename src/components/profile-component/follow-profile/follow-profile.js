@@ -8,50 +8,49 @@ import { follow, unfollow } from "../../../services/profile-service";
 export default class FollowProfile extends Component {
   state = {
     unLoggedIn: false,
-    text: "",
     following: null,
   };
 
   componentDidMount() {
-    const { following } = this.props;
-
-    if (following) {
-      this.setState({ following: true, text: "Unfollow" });
+    if (this.props.following) {
+      this.setState({ following: true });
     } else {
-      this.setState({ following: false, text: "follow" });
+      this.setState({ following: false });
     }
   }
 
   postFollow = (author, token) => {
     follow(author, token)
-      .then(
-        this.setState({ text: "Unfollow", following: true, unLoggedIn: false })
-      )
-      .catch((e) => this.setState({ unLoggedIn: true }));
+      .then(() => {
+        this.setState({ following: true });
+      })
+      .catch((e) => {
+        this.setState({ unLoggedIn: true });
+      });
   };
 
   deleteFollow = (author, token) => {
     unfollow(author, token)
-      .then(
-        this.setState({ text: "follow", following: false, unLoggedIn: false })
-      )
-      .catch((e) => this.setState({ unLoggedIn: true }));
+      .then(() => {
+        this.setState({ following: false });
+      })
+      .catch((e) => {
+        this.setState({ unLoggedIn: true });
+      });
   };
 
   follow = (author, token) => {
     const { following } = this.state;
     if (following) {
       this.deleteFollow(author, token);
-    }
-
-    if (!following) {
+    } else {
       this.postFollow(author, token);
     }
   };
 
   render() {
     const { author, token } = this.props;
-    const { text, unLoggedIn } = this.state;
+    const { unLoggedIn, following } = this.state;
     if (unLoggedIn) {
       return <Redirect to="/login" />;
     }
@@ -60,7 +59,8 @@ export default class FollowProfile extends Component {
         className="btn btn-sm action-btn btn-outline-secondary"
         onClick={() => this.follow(author, token)}
       >
-        <FontAwesomeIcon icon={faPlus} /> {text} {author}
+        <FontAwesomeIcon icon={faPlus} /> {following ? "Unfollow" : "Follow"}{" "}
+        {author}
       </button>
     );
   }

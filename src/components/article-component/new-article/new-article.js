@@ -8,6 +8,8 @@ import {
   editArticle,
 } from "../../../services/article-service";
 
+import withUser from "../../../hocs";
+
 import "./new-article.css";
 
 class NewArticle extends Component {
@@ -23,7 +25,7 @@ class NewArticle extends Component {
   };
 
   componentDidMount() {
-    if (this.props.match.params.slug && this.props.token) {
+    if (this.props.match.params.slug && this.props.data.token) {
       this.getArticleData(this.props.match.params.slug);
     }
   }
@@ -54,7 +56,7 @@ class NewArticle extends Component {
       serviceName = editArticle;
     }
     const slug = this.props.match.params.slug;
-    const token = this.props.token;
+    const token = this.props.data.token;
 
     serviceName({ article }, token, slug)
       .then((item) => {
@@ -63,7 +65,9 @@ class NewArticle extends Component {
           data: item.data,
         });
       })
-      .catch((e) => this.setState({ errorPutArticle: true }));
+      .catch((e) => {
+        this.setState({ errorPutArticle: true });
+      });
   };
 
   render() {
@@ -89,7 +93,7 @@ class NewArticle extends Component {
         </div>
       );
     }
-    if (!this.props.token) {
+    if (!this.props.data.token) {
       return <Redirect to="/login" />;
     }
     if (status === 200) {
@@ -169,6 +173,6 @@ class NewArticle extends Component {
   }
 }
 
-const RecordArticle = withRouter(NewArticle);
+const RecordArticle = withUser(withRouter(NewArticle));
 
 export { RecordArticle };

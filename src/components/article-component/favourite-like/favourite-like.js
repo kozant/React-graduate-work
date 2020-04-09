@@ -8,7 +8,6 @@ import { like, unlike } from "../../../services/article-service";
 
 export default class FavouriteLike extends Component {
   state = {
-    activeBtn: "",
     likeCount: null,
     favorited: null,
     unLoggedIn: false,
@@ -20,79 +19,69 @@ export default class FavouriteLike extends Component {
     this.setState({ likeCount: favoritesCount });
 
     if (favorited) {
-      this.setState({ favorited: true, activeBtn: "active" });
+      this.setState({ favorited: true });
     } else {
-      this.setState({ favorited: false, activeBtn: "" });
+      this.setState({ favorited: false });
     }
   }
 
   postLike = (slug, token) => {
     like(slug, token)
-      .then(
+      .then(() => {
         this.setState((prevState) => {
           const nextState = prevState.likeCount + 1;
           return {
-            activeBtn: "active",
             likeCount: nextState,
             favorited: true,
           };
-        })
-      )
-      .catch((e) => this.setState({ unLoggedIn: true }));
+        });
+      })
+      .catch((e) => {
+        this.setState({ unLoggedIn: true });
+      });
   };
 
   deleteLike = (slug, token) => {
     unlike(slug, token)
-      .then(
+      .then(() => {
         this.setState((prevState) => {
           const nextState = prevState.likeCount - 1;
           return {
-            activeBtn: "",
             likeCount: nextState,
             favorited: false,
           };
-        })
-      )
-      .catch((e) => this.setState({ unLoggedIn: true }));
+        });
+      })
+      .catch((e) => {
+        this.setState({ unLoggedIn: true });
+      });
   };
 
   likeElement = (slug, token) => {
     const { favorited } = this.state;
     if (favorited) {
       this.deleteLike(slug, token);
-    }
-
-    if (!favorited) {
+    } else {
       this.postLike(slug, token);
     }
   };
 
   render() {
     const { slug, token, page } = this.props;
-    const { activeBtn, likeCount, unLoggedIn } = this.state;
+    const { favorited, likeCount, unLoggedIn } = this.state;
 
     if (unLoggedIn) {
       return <Redirect to="/login" />;
     }
 
-    let text = null,
-      left = null,
-      right = null;
-
-    if (page) {
-      text = "Favourite Article ";
-      left = "(";
-      right = ")";
-    }
+    const text = page ? `Favourite article (${likeCount})` : likeCount;
+    const className = favorited ? "active" : "";
     return (
       <button
-        className={`btn btn-sm btn-outline-primary ${activeBtn}`}
+        className={`btn btn-sm btn-outline-primary ${className}`}
         onClick={() => this.likeElement(slug, token)}
       >
         <FontAwesomeIcon icon={faHeart} /> {text}
-        {left}
-        {likeCount}
-        {right}
       </button>
     );
   }

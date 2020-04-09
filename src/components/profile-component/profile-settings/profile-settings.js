@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import { editProfile } from "../../../services/profile-service";
 import ErrorComponent from "../../shared/error-component";
 import ServerError from "../../shared/server-error-component";
+import withUser from "../../../hocs";
 
 import "./profile-settings.css";
 
-export default class ProfileSettings extends Component {
+class ProfileSettings extends Component {
   state = {
     email: "",
     password: null,
@@ -27,7 +28,7 @@ export default class ProfileSettings extends Component {
       bio: this.state.bio,
       image: this.state.image,
     };
-    const token = this.props.token;
+    const token = this.props.data.token;
     editProfile({ user }, token)
       .then((profile) => {
         this.setState({
@@ -35,16 +36,18 @@ export default class ProfileSettings extends Component {
           data: profile.data,
         });
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => {
+        this.setState({ error: true });
+      });
   };
 
   logout = () => {
     localStorage.clear();
-    this.props.onSetToken();
+    this.props.data.onSetToken();
   };
 
   componentDidMount() {
-    const { email, username } = this.props;
+    const { email, username } = this.props.data;
     this.setState({
       email: email,
       username: username,
@@ -52,8 +55,10 @@ export default class ProfileSettings extends Component {
   }
   render() {
     const { data, status, email, username, error } = this.state;
-    const Error = error ? <ErrorComponent /> : null;
-    if (!this.props.token) {
+    if (error) {
+      return <ErrorComponent />;
+    }
+    if (!this.props.data.token) {
       return <Redirect to="/login" />;
     }
     if (status === 200) {
@@ -70,7 +75,6 @@ export default class ProfileSettings extends Component {
               <h1 className="text-xs-center">Your Settings</h1>
               <div>
                 <ServerError data={data} status={status} />
-                {Error}
               </div>
               <form
                 className="ng-untouched ng-pristine ng-valid"
@@ -154,3 +158,5 @@ export default class ProfileSettings extends Component {
     );
   }
 }
+
+export default withUser(ProfileSettings);

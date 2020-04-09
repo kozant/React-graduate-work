@@ -1,8 +1,8 @@
 import React from "react";
 
 const {
-  Provider: DataServiceProvider,
-  Consumer: DataServiceConsumer
+  Provider: DataProvider,
+  Consumer: DataConsumer,
 } = React.createContext();
 
-export { DataServiceProvider, DataServiceConsumer };
+export { DataProvider, DataConsumer };

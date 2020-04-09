@@ -4,10 +4,11 @@ import { Redirect } from "react-router";
 import ServerError from "../../shared/server-error-component";
 import ErrorComponent from "../../shared/error-component";
 import { signUp } from "../../../services/auth-service";
+import withUser from "../../../hocs";
 
 import "./sign-up.css";
 
-export default class SignUp extends Component {
+class SignUp extends Component {
   state = {
     email: "",
     password: "",
@@ -26,10 +27,9 @@ export default class SignUp extends Component {
     signUp({ user })
       .then((item) => {
         this.setState({
-          status: item.status,
-          data: item.data,
+          data: item,
         });
-        this.props.onSetToken(
+        this.props.data.onSetToken(
           item.data.user.token,
           item.data.user.email,
           item.data.user.username
@@ -39,9 +39,11 @@ export default class SignUp extends Component {
   };
 
   render() {
-    const { token } = this.props;
+    const { token } = this.props.data;
     const { data, status, error } = this.state;
-    const Error = error ? <ErrorComponent /> : null;
+    if (error) {
+      return <ErrorComponent />;
+    }
     if (token) {
       return <Redirect to="/" />;
     }
@@ -62,7 +64,6 @@ export default class SignUp extends Component {
               </p>
               <div>
                 <ServerError data={data} status={status} />
-                {Error}
               </div>
               <form
                 className="ng-untouched ng-pristine ng-invalid"
@@ -118,3 +119,5 @@ export default class SignUp extends Component {
     );
   }
 }
+
+export default withUser(SignUp);
