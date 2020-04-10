@@ -22,16 +22,12 @@ class ProfilePage extends Component {
     articles: [],
     articlesCount: null,
     indexPagination: 1,
-
     limit: 10,
-
     authorData: [],
     loadingPage: true,
     errorPage: false,
-
     loadingArticles: true,
     errorArticles: false,
-
     typeFeed: "myPosts",
   };
 
@@ -51,7 +47,7 @@ class ProfilePage extends Component {
 
   loadPage() {
     const { author } = this.props.match.params;
-    const { token } = this.props.data;
+    const { token } = this.props.authInfo;
     if (!author) {
       return;
     }
@@ -62,7 +58,9 @@ class ProfilePage extends Component {
           loadingPage: false,
         });
       })
-      .catch((e) => this.setState({ errorPage: true }));
+      .catch((e) => {
+        this.setState({ errorPage: true });
+      });
   }
 
   loadArticles = (offset = 0) => {
@@ -70,7 +68,7 @@ class ProfilePage extends Component {
       author: this.props.match.params.author,
       limit: this.state.limit,
       offset,
-      token: this.props.data.token,
+      token: this.props.authInfo.token,
     };
 
     let serviceName;
@@ -88,17 +86,17 @@ class ProfilePage extends Component {
           loadingArticles: false,
         });
       })
-      .catch((e) => this.setState({ errorArticles: true }));
+      .catch((e) => {
+        this.setState({ errorArticles: true });
+      });
   };
 
   clickHandler = (type) => {
-    this.setState(() => {
-      return {
-        typeFeed: type,
-        loadingArticles: true,
-        errorArticles: false,
-        indexPagination: 1,
-      };
+    this.setState({
+      typeFeed: type,
+      loadingArticles: true,
+      errorArticles: false,
+      indexPagination: 1,
     });
   };
 
@@ -119,20 +117,16 @@ class ProfilePage extends Component {
       articlesCount,
       limit,
       indexPagination,
-
       typeFeed,
-
       loadingArticles,
       errorArticles,
-
       loadingPage,
       errorPage,
-
       authorData,
     } = this.state;
 
     const { author } = this.props.match.params;
-    const { token, username } = this.props.data;
+    const { token, username } = this.props.authInfo;
 
     const yourProfile = (
       <Link to="/settings" className="ion-gear-a">
@@ -155,7 +149,14 @@ class ProfilePage extends Component {
         ? yourProfile
         : anotherProfile;
 
-    const Content = (
+    if (errorPage) {
+      return <ErrorComponent />;
+    }
+
+    if (loadingPage) {
+      return <Spinner />;
+    }
+    return (
       <>
         <div className="profile-page">
           <div className="user-info">
@@ -186,16 +187,6 @@ class ProfilePage extends Component {
         </div>
       </>
     );
-
-    if (loadingPage && !errorPage) {
-      return <Spinner />;
-    }
-    if (!loadingPage && !errorPage) {
-      return <>{Content}</>;
-    }
-    if (errorPage) {
-      return <ErrorComponent />;
-    }
   }
 }
 

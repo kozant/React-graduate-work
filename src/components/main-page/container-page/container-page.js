@@ -49,7 +49,7 @@ class ContainerPage extends Component {
     const payLoad = {
       limit: this.state.limit,
       offset,
-      token: this.props.data.token,
+      token: this.props.authInfo.token,
     };
 
     let serviceName;
@@ -70,19 +70,19 @@ class ContainerPage extends Component {
           loading: false,
         });
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => {
+        this.setState({ error: true });
+      });
   };
 
   clickHandler = (type, item) => {
-    this.setState(() => {
-      return {
-        tag: item,
-        typeFeed: type,
-        loading: true,
-        error: false,
-        indexPagination: 1,
-        offset: 0,
-      };
+    this.setState({
+      tag: item,
+      typeFeed: type,
+      loading: true,
+      error: false,
+      indexPagination: 1,
+      offset: 0,
     });
   };
 
@@ -104,14 +104,12 @@ class ContainerPage extends Component {
       limit,
       tag,
       indexPagination,
-
       typeFeed,
-
       loading,
       error,
     } = this.state;
 
-    const { token } = this.props.data;
+    const { token } = this.props.authInfo;
 
     if (typeFeed === "yourFeed" && !token) {
       return <Redirect to="/login" />;

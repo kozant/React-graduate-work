@@ -53,7 +53,7 @@
 }
 .article-page .article-meta .info .author {
   display: block;
-  font-weight: 500 !important;
+  font-weight: 500;
 }
 
 .article-page .article-meta .info .date {
@@ -88,21 +88,20 @@
 }
 
 .article-page ul.tag-list {
-  padding-left: 0 !important;
+  padding-left: 0;
   display: inline-block;
-  list-style: none !important;
+  list-style: none;
 }
 
 .article-page .tag-default.tag-outline {
   border: 1px solid #ddd;
-  color: #aaa !important;
-  background: 0 0 !important;
+  color: #aaa;
+  background: 0 0;
   overflow: hidden;
   max-width: 150px;
 }
 
 .article-page .tag-default {
-  color: #fff !important;
   font-size: 0.8rem;
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;

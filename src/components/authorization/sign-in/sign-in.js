@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
 import { signIn } from "../../../services/auth-service";
-import ErrorComponent from "../../shared/error-component";
 import ServerError from "../../shared/server-error-component";
 import withUser from "../../../hocs";
 
@@ -13,8 +12,14 @@ class SignIn extends Component {
     email: "",
     password: "",
     error: false,
-    status: null,
-    data: {},
+    authStatus: null,
+    authData: {},
+  };
+
+  onChangeField = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   };
 
   sendData = () => {
@@ -24,38 +29,26 @@ class SignIn extends Component {
     };
     signIn({ user })
       .then((item) => {
+        this.props.authInfo.onSetAuthInfo(item.data.user);
         this.setState({
-          status: item.status,
-          data: item.data,
+          authStatus: item.status,
+          authData: item.data,
         });
-        this.props.data.onSetToken(
-          item.data.user.token,
-          item.data.user.email,
-          item.data.user.username
-        );
       })
       .catch((e) => {
-        this.setState({ error: true });
+        this.setState({
+          authStatus: e.status,
+          authData: e.data,
+        });
       });
   };
 
   render() {
-    const { token } = this.props.data;
-    const { data, status, error } = this.state;
-    if (error) {
-      return <ErrorComponent />;
-    }
+    const { token } = this.props.authInfo;
+    const { authData, authStatus } = this.state;
     if (token) {
       return <Redirect to="/" />;
     }
-    if (status === 200) {
-      localStorage.setItem("token", data.user.token);
-      localStorage.setItem("email", data.user.email);
-      localStorage.setItem("username", data.user.username);
-
-      return <Redirect to="/" />;
-    }
-
     return (
       <div className="auth-page">
         <div className="container page">
@@ -66,10 +59,9 @@ class SignIn extends Component {
                 <Link to="/register">Need an account?</Link>
               </p>
               <div>
-                <ServerError data={data} status={status} />
+                <ServerError data={authData} status={authStatus} />
               </div>
               <form
-                className="ng-untouched ng-pristine ng-invalid"
                 onSubmit={(e) => {
                   e.preventDefault();
                 }}
@@ -77,22 +69,20 @@ class SignIn extends Component {
                 <fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-invalid"
-                      formcontrolname="email"
+                      className="form-control form-control-lg"
+                      name="email"
                       placeholder="Email"
                       type="text"
-                      onChange={(e) => this.setState({ email: e.target.value })}
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-invalid"
-                      formcontrolname="password"
+                      className="form-control form-control-lg"
+                      name="password"
                       placeholder="Password"
                       type="password"
-                      onChange={(e) =>
-                        this.setState({ password: e.target.value })
-                      }
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <button

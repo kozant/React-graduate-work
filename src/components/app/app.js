@@ -10,7 +10,7 @@ import ProfilePage from "../profile-component/profile-page";
 import ProfileSettings from "../profile-component/profile-settings";
 import RecordArticle from "../article-component/new-article";
 
-import { DataProvider } from "../../context";
+import { AuthInfoProvider } from "../../context";
 
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
@@ -18,25 +18,35 @@ import "./app.css";
 
 class App extends Component {
   state = {
-    token: localStorage.getItem("token") || null,
-    email: localStorage.getItem("email") || null,
-    username: localStorage.getItem("username") || null,
+    token: localStorage.getItem("token"),
+    email: localStorage.getItem("email"),
+    username: localStorage.getItem("username"),
   };
 
-  setToken = (token = null, email = null, username = null) => {
-    this.setState({ token, email, username });
+  setAuthInfo = ({ token, email, username }) => {
+    if (token === undefined) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("email");
+      localStorage.removeItem("username");
+      this.setState({ token: "", email: "", username: "" });
+    } else {
+      localStorage.setItem("token", token);
+      localStorage.setItem("email", email);
+      localStorage.setItem("username", username);
+      this.setState({ token, email, username });
+    }
   };
 
   render() {
     const { token, username, email } = this.state;
-    const user = {
+    const authInfo = {
       token: token,
       username: username,
       email: email,
-      onSetToken: this.setToken,
+      onSetAuthInfo: this.setAuthInfo,
     };
     return (
-      <DataProvider value={user}>
+      <AuthInfoProvider value={authInfo}>
         <div className="todo-app">
           <Router>
             <AppHeader />
@@ -55,7 +65,7 @@ class App extends Component {
             <AppFooter />
           </Router>
         </div>
-      </DataProvider>
+      </AuthInfoProvider>
     );
   }
 }

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import { editProfile } from "../../../services/profile-service";
-import ErrorComponent from "../../shared/error-component";
 import ServerError from "../../shared/server-error-component";
 import withUser from "../../../hocs";
 
@@ -15,9 +14,14 @@ class ProfileSettings extends Component {
     username: "",
     bio: null,
     image: null,
-    error: false,
-    status: null,
-    data: {},
+    profileStatus: null,
+    profileData: {},
+  };
+
+  onChangeField = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   };
 
   changeData = () => {
@@ -28,43 +32,39 @@ class ProfileSettings extends Component {
       bio: this.state.bio,
       image: this.state.image,
     };
-    const token = this.props.data.token;
+    const token = this.props.authInfo.token;
     editProfile({ user }, token)
       .then((profile) => {
         this.setState({
-          status: profile.status,
-          data: profile.data,
+          profileStatus: profile.status,
+          profileData: profile.data,
         });
       })
       .catch((e) => {
-        this.setState({ error: true });
+        this.setState({
+          profileStatus: e.status,
+          profileData: e.data,
+        });
       });
   };
 
   logout = () => {
-    localStorage.clear();
-    this.props.data.onSetToken();
+    this.props.authInfo.onSetAuthInfo({});
   };
 
   componentDidMount() {
-    const { email, username } = this.props.data;
+    const { email, username } = this.props.authInfo;
     this.setState({
       email: email,
       username: username,
     });
   }
   render() {
-    const { data, status, email, username, error } = this.state;
-    if (error) {
-      return <ErrorComponent />;
-    }
-    if (!this.props.data.token) {
+    const { profileData, profileStatus, email, username } = this.state;
+    if (!this.props.authInfo.token) {
       return <Redirect to="/login" />;
     }
-    if (status === 200) {
-      localStorage.setItem("token", data.user.token);
-      localStorage.setItem("email", data.user.email);
-      localStorage.setItem("username", data.user.username);
+    if (profileStatus === 200) {
       return <Redirect to={`/profile/${username}`} />;
     }
     return (
@@ -74,10 +74,9 @@ class ProfileSettings extends Component {
             <div className="col-md-6 offset-md-3 col-xs-12">
               <h1 className="text-xs-center">Your Settings</h1>
               <div>
-                <ServerError data={data} status={status} />
+                <ServerError data={profileData} status={profileStatus} />
               </div>
               <form
-                className="ng-untouched ng-pristine ng-valid"
                 onSubmit={(e) => {
                   e.preventDefault();
                 }}
@@ -85,53 +84,49 @@ class ProfileSettings extends Component {
                 <fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control ng-untouched ng-pristine ng-valid"
-                      formcontrolname="image"
+                      className="form-control"
+                      name="image"
                       placeholder="URL of profile picture"
                       type="text"
-                      onChange={(e) => this.setState({ image: e.target.value })}
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="username"
+                      className="form-control form-control-lg"
+                      name="username"
                       placeholder="Username"
                       type="text"
-                      onChange={(e) =>
-                        this.setState({ username: e.target.value })
-                      }
+                      onChange={this.onChangeField}
                       value={username}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <textarea
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="bio"
+                      className="form-control form-control-lg"
+                      name="bio"
                       placeholder="Short bio about you"
                       rows="8"
-                      onChange={(e) => this.setState({ bio: e.target.value })}
+                      onChange={this.onChangeField}
                     ></textarea>
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="email"
+                      className="form-control form-control-lg"
+                      name="email"
                       placeholder="Email"
                       type="email"
-                      onChange={(e) => this.setState({ email: e.target.value })}
+                      onChange={this.onChangeField}
                       value={email}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="password"
+                      className="form-control form-control-lg"
+                      name="password"
                       placeholder="New Password"
                       type="password"
-                      onChange={(e) =>
-                        this.setState({ password: e.target.value })
-                      }
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <button

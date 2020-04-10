@@ -16,13 +16,7 @@ export default class FavouriteLike extends Component {
   componentDidMount() {
     const { favoritesCount, favorited } = this.props;
 
-    this.setState({ likeCount: favoritesCount });
-
-    if (favorited) {
-      this.setState({ favorited: true });
-    } else {
-      this.setState({ favorited: false });
-    }
+    this.setState({ likeCount: favoritesCount, favorited: favorited });
   }
 
   postLike = (slug, token) => {

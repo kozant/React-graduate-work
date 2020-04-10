@@ -7,7 +7,7 @@ import withUser from "../../hocs";
 
 import { Link } from "react-router-dom";
 
-const AppHeader = ({ data }) => {
+const AppHeader = ({ authInfo }) => {
   const guestHeader = (
     <React.Fragment>
       <li className="nav-item">
@@ -35,14 +35,14 @@ const AppHeader = ({ data }) => {
         </Link>
       </li>
       <li className="nav-item">
-        <Link to={`/profile/${data.username}`} className="nav-link">
-          {data.username}
+        <Link to={`/profile/${authInfo.username}`} className="nav-link">
+          {authInfo.username}
         </Link>
       </li>
     </React.Fragment>
   );
 
-  const elements = data.token ? userHeader : guestHeader;
+  const elements = authInfo.token ? userHeader : guestHeader;
   return (
     <nav className="navbar navbar-light app-header">
       <div className="container">

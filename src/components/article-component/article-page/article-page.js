@@ -17,11 +17,11 @@ import "./article-page.css";
 
 class ArticlePage extends Component {
   state = {
-    article: [],
+    article: {},
     articleDeleted: false,
     errorPage: false,
     loadingPage: true,
-    profile: [],
+    profile: {},
   };
 
   componentDidMount() {
@@ -36,7 +36,7 @@ class ArticlePage extends Component {
 
   loadArticle = () => {
     const { slug } = this.props.match.params;
-    const { token } = this.props.data;
+    const { token } = this.props.authInfo;
     if (!slug) {
       return;
     }
@@ -71,7 +71,7 @@ class ArticlePage extends Component {
     } = this.state;
 
     const { slug } = this.props.match.params;
-    const { token, username } = this.props.data;
+    const { token, username } = this.props.authInfo;
 
     if (articleDeleted) {
       return <Redirect to={`/profile/${username}`} />;
@@ -124,7 +124,15 @@ class ArticlePage extends Component {
     const articleButtons =
       article.author === username ? yourArticle : anotherArticle;
 
-    const Content = (
+    if (errorPage) {
+      return <ErrorComponent />;
+    }
+
+    if (loadingPage) {
+      return <Spinner />;
+    }
+
+    return (
       <div className="article-page">
         <div className="banner">
           <div className="container">
@@ -158,18 +166,6 @@ class ArticlePage extends Component {
         <hr></hr>
       </div>
     );
-
-    if (loadingPage && !errorPage) {
-      return <Spinner />;
-    }
-
-    if (!loadingPage && !errorPage) {
-      return <>{Content}</>;
-    }
-
-    if (errorPage) {
-      return <ErrorComponent />;
-    }
   }
 }
 

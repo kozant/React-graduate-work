@@ -3,11 +3,11 @@
 }
 
 .settings-page .text-xs-center {
-  text-align: center !important;
+  text-align: center;
 }
 
 .settings-page .pull-xs-right {
-  float: right !important;
+  float: right;
 }
 .settings-page.btn-lg,
 .btn-group-lg > .btn {

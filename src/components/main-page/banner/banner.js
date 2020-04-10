@@ -13,9 +13,9 @@ const Banner = ({ token }) => {
         </div>
       </div>
     );
-  } else {
-    return <React.Fragment></React.Fragment>;
   }
+
+  return <></>;
 };
 
 export default Banner;

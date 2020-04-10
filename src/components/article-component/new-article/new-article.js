@@ -19,13 +19,12 @@ class NewArticle extends Component {
     body: "",
     tags: [],
     errorGetArticle: false,
-    errorPutArticle: false,
-    status: null,
-    data: {},
+    articleStatus: null,
+    articleData: {},
   };
 
   componentDidMount() {
-    if (this.props.match.params.slug && this.props.data.token) {
+    if (this.props.match.params.slug && this.props.authInfo.token) {
       this.getArticleData(this.props.match.params.slug);
     }
   }
@@ -40,7 +39,21 @@ class NewArticle extends Component {
           tags: article.tagList,
         });
       })
-      .catch((e) => this.setState({ errorGetArticle: true }));
+      .catch((e) => {
+        this.setState({ errorGetArticle: true });
+      });
+  };
+
+  onChangeField = (e) => {
+    if (e.target.name === "tags") {
+      this.setState({
+        [e.target.name]: e.target.value.split(" "),
+      });
+    } else {
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
   };
 
   sendData = () => {
@@ -56,48 +69,39 @@ class NewArticle extends Component {
       serviceName = editArticle;
     }
     const slug = this.props.match.params.slug;
-    const token = this.props.data.token;
-
+    const token = this.props.authInfo.token;
     serviceName({ article }, token, slug)
-      .then((item) => {
+      .then((article) => {
         this.setState({
-          status: item.status,
-          data: item.data,
+          articleStatus: article.status,
+          articleData: article.data,
         });
       })
       .catch((e) => {
-        this.setState({ errorPutArticle: true });
+        this.setState({ articleStatus: e.status, articleData: e.data });
       });
   };
 
   render() {
     const {
-      data,
-      status,
+      articleData,
+      articleStatus,
       title,
       desc,
       body,
       tags,
       errorGetArticle,
-      errorPutArticle,
     } = this.state;
     if (errorGetArticle) {
       return (
         <div className=" row justify-content-center">Article not Found</div>
       );
     }
-    if (errorPutArticle) {
-      return (
-        <div className=" row justify-content-center">
-          You can't change another article
-        </div>
-      );
-    }
-    if (!this.props.data.token) {
+    if (!this.props.authInfo.token) {
       return <Redirect to="/login" />;
     }
-    if (status === 200) {
-      return <Redirect to={`/article/${data.article.slug}`} />;
+    if (articleStatus === 200) {
+      return <Redirect to={`/article/${articleData.article.slug}`} />;
     }
     return (
       <div className="new-article">
@@ -105,10 +109,9 @@ class NewArticle extends Component {
           <div className="row">
             <div className="col-md-10 offset-md-1 col-xs-12">
               <div>
-                <ServerError data={data} status={status} />
+                <ServerError data={articleData} status={articleStatus} />
               </div>
               <form
-                className="ng-untouched ng-pristine ng-valid"
                 onSubmit={(e) => {
                   e.preventDefault();
                 }}
@@ -116,42 +119,41 @@ class NewArticle extends Component {
                 <fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="title"
+                      className="form-control form-control-lg"
+                      name="title"
                       placeholder="Article Title"
                       type="text"
-                      onChange={(e) => this.setState({ title: e.target.value })}
+                      onChange={this.onChangeField}
                       value={title}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control ng-untouched ng-pristine ng-valid"
-                      formcontrolname="description"
+                      className="form-control"
+                      name="desc"
                       placeholder="What's this article about?"
                       type="text"
-                      onChange={(e) => this.setState({ desc: e.target.value })}
+                      onChange={this.onChangeField}
                       value={desc}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <textarea
-                      className="form-control ng-untouched ng-pristine ng-valid"
-                      formcontrolname="body"
+                      className="form-control"
+                      name="body"
                       placeholder="Write your article (in markdown)"
                       rows="8"
-                      onChange={(e) => this.setState({ body: e.target.value })}
+                      onChange={this.onChangeField}
                       value={body}
                     ></textarea>
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control ng-untouched ng-pristine ng-valid"
+                      className="form-control"
+                      name="tags"
                       placeholder="Enter tags"
                       type="text"
-                      onChange={(e) =>
-                        this.setState({ tags: e.target.value.split(" ") })
-                      }
+                      onChange={this.onChangeField}
                       value={tags}
                     />
                     <div className="tag-list"></div>

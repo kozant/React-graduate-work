@@ -31,13 +31,16 @@ export const postRequest = async (url, token, body) => {
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    throw new Error(`Could not fetch ${url}, received ${res.status}`);
-  }
-  return {
+  const objectData = {
     data: await res.json(),
     status: res.status,
   };
+
+  if (!res.ok) {
+    throw objectData;
+  }
+
+  return objectData;
 };
 
 export const putRequest = async (url, token, body) => {
@@ -51,13 +54,16 @@ export const putRequest = async (url, token, body) => {
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    throw new Error(`Could not fetch ${url}, received ${res.status}`);
-  }
-  return {
+  const objectData = {
     data: await res.json(),
     status: res.status,
   };
+
+  if (!res.ok) {
+    throw objectData;
+  }
+
+  return objectData;
 };
 
 export const deleteRequest = async (url, token) => {

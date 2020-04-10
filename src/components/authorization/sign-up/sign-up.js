@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
 import ServerError from "../../shared/server-error-component";
-import ErrorComponent from "../../shared/error-component";
 import { signUp } from "../../../services/auth-service";
 import withUser from "../../../hocs";
 
@@ -13,9 +12,14 @@ class SignUp extends Component {
     email: "",
     password: "",
     username: "",
-    error: false,
-    status: null,
-    data: {},
+    authStatus: null,
+    authData: {},
+  };
+
+  onChangeField = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   };
 
   sendData = () => {
@@ -26,31 +30,21 @@ class SignUp extends Component {
     };
     signUp({ user })
       .then((item) => {
+        this.props.data.onSetAuthInfo(item.data.user);
         this.setState({
-          data: item,
+          authData: item.data,
+          authStatus: item.status,
         });
-        this.props.data.onSetToken(
-          item.data.user.token,
-          item.data.user.email,
-          item.data.user.username
-        );
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => {
+        this.setState({ authData: e.data, authStatus: e.status });
+      });
   };
 
   render() {
-    const { token } = this.props.data;
-    const { data, status, error } = this.state;
-    if (error) {
-      return <ErrorComponent />;
-    }
+    const { token } = this.props.authInfo;
+    const { authData, authStatus } = this.state;
     if (token) {
-      return <Redirect to="/" />;
-    }
-    if (status === 200) {
-      localStorage.setItem("token", data.user.token);
-      localStorage.setItem("email", data.user.email);
-      localStorage.setItem("username", data.user.username);
       return <Redirect to="/" />;
     }
     return (
@@ -63,10 +57,9 @@ class SignUp extends Component {
                 <Link to="/login">Have an account?</Link>
               </p>
               <div>
-                <ServerError data={data} status={status} />
+                <ServerError data={authData} status={authStatus} />
               </div>
               <form
-                className="ng-untouched ng-pristine ng-invalid"
                 onSubmit={(e) => {
                   e.preventDefault();
                 }}
@@ -74,33 +67,29 @@ class SignUp extends Component {
                 <fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-valid"
-                      formcontrolname="username"
+                      className="form-control form-control-lg"
+                      name="username"
                       placeholder="Username"
                       type="text"
-                      onChange={(e) =>
-                        this.setState({ username: e.target.value })
-                      }
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-invalid"
-                      formcontrolname="email"
+                      className="form-control form-control-lg"
+                      name="email"
                       placeholder="Email"
                       type="text"
-                      onChange={(e) => this.setState({ email: e.target.value })}
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <fieldset className="form-group">
                     <input
-                      className="form-control form-control-lg ng-untouched ng-pristine ng-invalid"
-                      formcontrolname="password"
+                      className="form-control form-control-lg"
+                      name="password"
                       placeholder="Password"
                       type="password"
-                      onChange={(e) =>
-                        this.setState({ password: e.target.value })
-                      }
+                      onChange={this.onChangeField}
                     />
                   </fieldset>
                   <button

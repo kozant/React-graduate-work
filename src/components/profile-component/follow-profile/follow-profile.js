@@ -12,11 +12,7 @@ export default class FollowProfile extends Component {
   };
 
   componentDidMount() {
-    if (this.props.following) {
-      this.setState({ following: true });
-    } else {
-      this.setState({ following: false });
-    }
+    this.setState({ following: this.props.following });
   }
 
   postFollow = (author, token) => {

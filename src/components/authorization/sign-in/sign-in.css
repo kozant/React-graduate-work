@@ -1,5 +1,5 @@
 .auth-page .text-xs-center {
-  text-align: center !important;
+  text-align: center;
 }
 
 .auth-page a {
@@ -11,7 +11,7 @@
 }
 
 .auth-page .pull-xs-right {
-  float: right !important;
+  float: right;
 }
 .auth-page .btn-lg,
 .btn-group-lg > .btn {

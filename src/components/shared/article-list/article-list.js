@@ -16,38 +16,29 @@ const ArticleList = ({
   onPaginationClick,
   indexPagination,
 }) => {
-  if (loading && !error) {
-    return <Spinner />;
-  }
   if (error) {
     return <ErrorComponent />;
   }
-
-  const elements =
-    !loading && !error && data.length !== 0
-      ? data.map((item) => {
-          return <ArticleItem key={item.slug} data={item} token={token} />;
-        })
-      : null;
-
-  const nodata =
-    !loading && !error && data.length === 0 ? <div>Empty...</div> : null;
-
-  const pagination =
-    !loading && !error ? (
-      <Pagination
-        articlesCount={articlesCount}
-        limit={limit}
-        indexPagination={indexPagination}
-        onPaginationClick={onPaginationClick}
-      />
-    ) : null;
-
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <div>
-      {elements}
-      {nodata}
-      {pagination}
+      {data.length === 0 ? (
+        <div>Empty...</div>
+      ) : (
+        <>
+          {data.map((item) => {
+            return <ArticleItem key={item.slug} data={item} token={token} />;
+          })}
+          <Pagination
+            articlesCount={articlesCount}
+            limit={limit}
+            indexPagination={indexPagination}
+            onPaginationClick={onPaginationClick}
+          />
+        </>
+      )}
     </div>
   );
 };

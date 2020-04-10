@@ -1,16 +1,12 @@
 import React from "react";
-import { DataConsumer } from "../context";
+import { AuthInfoConsumer } from "../context";
 
-const withUser = (Wrapped) => {
-  return (props) => {
-    return (
-      <DataConsumer>
-        {(user) => {
-          return <Wrapped {...props} data={user} />;
-        }}
-      </DataConsumer>
-    );
-  };
-};
+const withUser = (WrappedComponent) => (props) => (
+  <AuthInfoConsumer>
+    {(authInfo) => {
+      return <WrappedComponent {...props} authInfo={authInfo} />;
+    }}
+  </AuthInfoConsumer>
+);
 
 export { withUser };
