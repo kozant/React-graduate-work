@@ -16,6 +16,7 @@ import Spinner from "../../shared/spinner";
 import "./article-page.css";
 
 class ArticlePage extends Component {
+  _isMounted = false;
   state = {
     article: {},
     articleDeleted: false,
@@ -25,7 +26,12 @@ class ArticlePage extends Component {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     this.loadArticle();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   componentDidUpdate(prevProps) {
@@ -43,15 +49,19 @@ class ArticlePage extends Component {
     getArticle(slug)
       .then((article) => {
         getProfile(article.author, token).then((profile) => {
-          this.setState({
-            profile: profile,
-            article: article,
-            loadingPage: false,
-          });
+          if (this._isMounted) {
+            this.setState({
+              profile: profile,
+              article: article,
+              loadingPage: false,
+            });
+          }
         });
       })
       .catch((e) => {
-        this.setState({ errorPage: true });
+        if (this._isMounted) {
+          this.setState({ errorPage: true });
+        }
       });
   };
 
@@ -109,7 +119,6 @@ class ArticlePage extends Component {
         <FollowProfile
           author={profile.username}
           following={profile.following}
-          token={token}
         />
         <FavouriteLike
           className="btn btn-sm btn-outline-primary"
@@ -117,7 +126,6 @@ class ArticlePage extends Component {
           favorited={article.favorited}
           slug={article.slug}
           page={true}
-          token={token}
         ></FavouriteLike>
       </span>
     );

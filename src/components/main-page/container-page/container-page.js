@@ -14,13 +14,14 @@ import withUser from "../../../hocs";
 import { Redirect } from "react-router";
 
 class ContainerPage extends Component {
+  _isMounted = false;
+
   state = {
     articles: [],
     articlesCount: null,
     indexPagination: 1,
 
     limit: 10,
-
     tag: null,
     loading: true,
     error: false,
@@ -29,9 +30,13 @@ class ContainerPage extends Component {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     this.loadArticles();
   }
 
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
   componentDidUpdate(prevProps, prevState) {
     if (this.state.typeFeed === "globalFeed" || "yourFeed") {
       if (this.state.typeFeed !== prevState.typeFeed) {
@@ -64,14 +69,18 @@ class ContainerPage extends Component {
 
     serviceName(payLoad)
       .then((data) => {
-        this.setState({
-          articles: data.articles,
-          articlesCount: data.articlesCount,
-          loading: false,
-        });
+        if (this._isMounted) {
+          this.setState({
+            articles: data.articles,
+            articlesCount: data.articlesCount,
+            loading: false,
+          });
+        }
       })
       .catch((e) => {
-        this.setState({ error: true });
+        if (this._isMounted) {
+          this.setState({ error: true });
+        }
       });
   };
 
@@ -125,10 +134,9 @@ class ContainerPage extends Component {
         />
 
         <ArticleList
-          data={articles}
+          articles={articles}
           loading={loading}
           error={error}
-          token={token}
           limit={limit}
           articlesCount={articlesCount}
           onPaginationClick={this.PaginationClick}

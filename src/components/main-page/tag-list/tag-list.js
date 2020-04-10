@@ -6,6 +6,7 @@ import { getAllPopularTags } from "../../../services/article-service";
 import "./tag-list.css";
 
 export default class TagList extends Component {
+  _isMounted = false;
   state = {
     popularTags: [],
     loading: true,
@@ -13,18 +14,29 @@ export default class TagList extends Component {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     this.loadTags();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   loadTags = () => {
     getAllPopularTags()
       .then((data) => {
-        this.setState({
-          popularTags: data,
-          loading: false,
-        });
+        if (this._isMounted) {
+          this.setState({
+            popularTags: data,
+            loading: false,
+          });
+        }
       })
-      .catch((e) => this.setState({ error: true }));
+      .catch((e) => {
+        if (this._isMounted) {
+          this.setState({ error: true });
+        }
+      });
   };
 
   render() {

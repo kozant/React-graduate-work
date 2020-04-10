@@ -8,13 +8,21 @@ import withUser from "../../../hocs";
 import "./sign-in.css";
 
 class SignIn extends Component {
+  _isMounted = false;
   state = {
     email: "",
     password: "",
-    error: false,
     authStatus: null,
     authData: {},
   };
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
   onChangeField = (e) => {
     this.setState({
@@ -30,16 +38,20 @@ class SignIn extends Component {
     signIn({ user })
       .then((item) => {
         this.props.authInfo.onSetAuthInfo(item.data.user);
-        this.setState({
-          authStatus: item.status,
-          authData: item.data,
-        });
+        if (this._isMounted) {
+          this.setState({
+            authStatus: item.status,
+            authData: item.data,
+          });
+        }
       })
       .catch((e) => {
-        this.setState({
-          authStatus: e.status,
-          authData: e.data,
-        });
+        if (this._isMounted) {
+          this.setState({
+            authStatus: e.status,
+            authData: e.data,
+          });
+        }
       });
   };
 

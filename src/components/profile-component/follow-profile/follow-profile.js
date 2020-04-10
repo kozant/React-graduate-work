@@ -4,8 +4,8 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Redirect } from "react-router";
 
 import { follow, unfollow } from "../../../services/profile-service";
-
-export default class FollowProfile extends Component {
+import withUser from "../../../hocs";
+class FollowProfile extends Component {
   state = {
     unLoggedIn: false,
     following: null,
@@ -45,7 +45,8 @@ export default class FollowProfile extends Component {
   };
 
   render() {
-    const { author, token } = this.props;
+    const { author } = this.props;
+    const { token } = this.props.authInfo;
     const { unLoggedIn, following } = this.state;
     if (unLoggedIn) {
       return <Redirect to="/login" />;
@@ -61,3 +62,5 @@ export default class FollowProfile extends Component {
     );
   }
 }
+
+export default withUser(FollowProfile);

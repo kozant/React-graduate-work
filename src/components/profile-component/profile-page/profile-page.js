@@ -18,6 +18,8 @@ import ErrorComponent from "../../shared/error-component";
 import "./profile-page.css";
 
 class ProfilePage extends Component {
+  _isMounted = false;
+
   state = {
     articles: [],
     articlesCount: null,
@@ -32,8 +34,13 @@ class ProfilePage extends Component {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     this.loadPage();
     this.loadArticles();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -53,13 +60,17 @@ class ProfilePage extends Component {
     }
     getProfile(author, token)
       .then((profile) => {
-        this.setState({
-          authorData: profile,
-          loadingPage: false,
-        });
+        if (this._isMounted) {
+          this.setState({
+            authorData: profile,
+            loadingPage: false,
+          });
+        }
       })
       .catch((e) => {
-        this.setState({ errorPage: true });
+        if (this._isMounted) {
+          this.setState({ errorPage: true });
+        }
       });
   }
 
@@ -80,14 +91,18 @@ class ProfilePage extends Component {
 
     serviceName(payLoad)
       .then((data) => {
-        this.setState({
-          articles: data.articles,
-          articlesCount: data.articlesCount,
-          loadingArticles: false,
-        });
+        if (this._isMounted) {
+          this.setState({
+            articles: data.articles,
+            articlesCount: data.articlesCount,
+            loadingArticles: false,
+          });
+        }
       })
       .catch((e) => {
-        this.setState({ errorArticles: true });
+        if (this._isMounted) {
+          this.setState({ errorArticles: true });
+        }
       });
   };
 
@@ -175,7 +190,7 @@ class ProfilePage extends Component {
         <div className="container">
           <ProfileFeed typeFeed={typeFeed} onClickHandler={this.clickHandler} />
           <ArticleList
-            data={articles}
+            articles={articles}
             loading={loadingArticles}
             error={errorArticles}
             limit={limit}

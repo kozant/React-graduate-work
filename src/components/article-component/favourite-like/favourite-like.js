@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
-
 import { Redirect } from "react-router";
-
 import { like, unlike } from "../../../services/article-service";
+import withUser from "../../../hocs";
 
-export default class FavouriteLike extends Component {
+class FavouriteLike extends Component {
   state = {
     likeCount: null,
     favorited: null,
@@ -61,7 +60,8 @@ export default class FavouriteLike extends Component {
   };
 
   render() {
-    const { slug, token, page } = this.props;
+    const { slug, page } = this.props;
+    const { token } = this.props.authInfo;
     const { favorited, likeCount, unLoggedIn } = this.state;
 
     if (unLoggedIn) {
@@ -80,3 +80,5 @@ export default class FavouriteLike extends Component {
     );
   }
 }
+
+export default withUser(FavouriteLike);

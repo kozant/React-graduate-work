@@ -7,11 +7,10 @@ import Pagination from "../pagination";
 import ErrorComponent from "../../shared/error-component";
 
 const ArticleList = ({
-  data,
+  articles,
   loading,
   articlesCount,
   error,
-  token,
   limit,
   onPaginationClick,
   indexPagination,
@@ -24,12 +23,12 @@ const ArticleList = ({
   }
   return (
     <div>
-      {data.length === 0 ? (
+      {articles.length === 0 ? (
         <div>Empty...</div>
       ) : (
         <>
-          {data.map((item) => {
-            return <ArticleItem key={item.slug} data={item} token={token} />;
+          {articles.map((article) => {
+            return <ArticleItem key={article.slug} articles={article} />;
           })}
           <Pagination
             articlesCount={articlesCount}
