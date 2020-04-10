@@ -15,7 +15,7 @@
   font-size: 1.5rem;
   padding-top: 0;
   margin-right: 2rem;
-  color: #5cb85c;
+  color: #5cb85c !important;
 }
 
 .app-header .navbar-nav .nav-item {
