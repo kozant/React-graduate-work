@@ -30,7 +30,7 @@ class SignUp extends Component {
     };
     signUp({ user })
       .then((item) => {
-        this.props.data.onSetAuthInfo(item.data.user);
+        this.props.authInfo.onSetAuthInfo(item.data.user);
         this.setState({
           authData: item.data,
           authStatus: item.status,
