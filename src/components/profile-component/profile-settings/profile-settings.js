@@ -8,6 +8,7 @@ import withUser from "../../../hocs";
 import "./profile-settings.css";
 
 class ProfileSettings extends Component {
+  _isMounted = false;
   state = {
     email: "",
     password: null,
@@ -17,6 +18,19 @@ class ProfileSettings extends Component {
     profileStatus: null,
     profileData: {},
   };
+
+  componentDidMount() {
+    this._isMounted = true;
+    const { email, username } = this.props.authInfo;
+    this.setState({
+      email: email,
+      username: username,
+    });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
   onChangeField = (e) => {
     this.setState({
@@ -35,16 +49,21 @@ class ProfileSettings extends Component {
     const token = this.props.authInfo.token;
     editProfile({ user }, token)
       .then((profile) => {
-        this.setState({
-          profileStatus: profile.status,
-          profileData: profile.data,
-        });
+        this.props.authInfo.onSetAuthInfo(profile.data.user);
+        if (this._isMounted) {
+          this.setState({
+            profileStatus: profile.status,
+            profileData: profile.data,
+          });
+        }
       })
       .catch((e) => {
-        this.setState({
-          profileStatus: e.status,
-          profileData: e.data,
-        });
+        if (this._isMounted) {
+          this.setState({
+            profileStatus: e.status,
+            profileData: e.data,
+          });
+        }
       });
   };
 
@@ -52,13 +71,6 @@ class ProfileSettings extends Component {
     this.props.authInfo.onSetAuthInfo({});
   };
 
-  componentDidMount() {
-    const { email, username } = this.props.authInfo;
-    this.setState({
-      email: email,
-      username: username,
-    });
-  }
   render() {
     const { profileData, profileStatus, email, username } = this.state;
     if (!this.props.authInfo.token) {
